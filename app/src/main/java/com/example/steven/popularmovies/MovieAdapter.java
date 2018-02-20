@@ -17,9 +17,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public static final String TAG = "MovieAdapter";
     int mCount;
+    GridItemClickListener mGridItemClickListener;
 
-    public MovieAdapter(int number){
+    public interface GridItemClickListener {
+        void onGridItemClick(int clickedItemIndex);
+    }
+
+    public MovieAdapter(int number, GridItemClickListener gridItemClickListener){
         mCount = number;
+        mGridItemClickListener = gridItemClickListener;
     }
 
     @Override
@@ -46,15 +52,24 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return mCount;
     }
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder {
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView mImageView;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
             mImageView = itemView.findViewById(R.id.listItem_movieImage);
+            itemView.setOnClickListener(this);
         }
 
+        /*
+        onClickListener for the individual grid item view. The position of the clicked
+        item index is passed to the listener instance
+         */
+        @Override
+        public void onClick(View view) {
+            mGridItemClickListener.onGridItemClick(getAdapterPosition());
+        }
     }
 
 }
