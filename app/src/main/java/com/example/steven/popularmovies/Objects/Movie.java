@@ -9,39 +9,38 @@ import java.util.ArrayList;
 public class Movie {
 
     public int mID;
-    public boolean mVideo;
-    public int mVoteAverage;
+    public double mVoteAverage;
     public String mTitle;
     public String mPosterPath;
-    public ArrayList<Integer> mGenres;
+    public ArrayList<String> mGenres;
     public String mOverview;
-    public boolean mAdult;
+    public String mTagline;
+    public String mReleaseDate;
+    public int mRuntime;
 
 
     /*
     constructor for creating a new Movie object
      */
-    public Movie(int id, boolean video, int voteAverage, String title, String posterPath,
-                 ArrayList<Integer> genres, String overview, boolean adult){
+    public Movie(int id, double voteAverage, String title, String posterPath,
+                 ArrayList<String> genres, String overview, String tagline,
+                 String releaseDate, int runtime){
         mID = id;
-        mVideo = video;
         mVoteAverage = voteAverage;
         mTitle = title;
         mPosterPath = posterPath;
         mGenres = genres;
         mOverview = overview;
-        mAdult = adult;
+        mTagline = tagline;
+        mReleaseDate = releaseDate;
+        mRuntime = runtime;
     }
 
     public int getID(){
         return mID;
     }
 
-    public boolean hasVideo() {
-        return mVideo;
-    }
-
-    public int getVoteAverage() {
+    public double getVoteAverage() {
         return mVoteAverage;
     }
 
@@ -53,7 +52,7 @@ public class Movie {
         return mPosterPath;
     }
 
-    public ArrayList<Integer> getGenres() {
+    public ArrayList<String> getGenres() {
         return mGenres;
     }
 
@@ -61,9 +60,15 @@ public class Movie {
         return mOverview;
     }
 
-    public boolean isAdult() {
-        return mAdult;
+    public String getTagline() {
+        return mTagline;
     }
 
+    public String getReleaseDate() {
+        return mReleaseDate;
+    }
 
+    public int getRuntime() {
+        return mRuntime;
+    }
 }

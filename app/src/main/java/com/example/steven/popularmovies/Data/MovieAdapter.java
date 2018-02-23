@@ -1,15 +1,14 @@
-package com.example.steven.popularmovies;
+package com.example.steven.popularmovies.Data;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.steven.popularmovies.Objects.Movie;
+import com.example.steven.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -19,9 +18,9 @@ import com.squareup.picasso.Picasso;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
     public static final String TAG = "MovieAdapter";
-    GridItemClickListener mGridItemClickListener;
-    Context mContext;
-    Movie[] mData;
+    public GridItemClickListener mGridItemClickListener;
+    public Context mContext;
+    public Movie[] mData;
 
     public interface GridItemClickListener {
         void onGridItemClick(int clickedItemIndex);

@@ -25,6 +25,7 @@ public class NetworkUtils {
     public static final String BASE_URL = "https://api.themoviedb.org/3";
     public static final String POPULAR_MOVIES_END_POINT = "/movie/popular";
     public static final String TOP_RATED_END_POINT = "/movie/top_rated";
+    public static final String MOVIE_DETAILS_END_POINT = "/movie/";
 
     public static final String API_KEY_PARAMETER = "api_key";
     // PLEASE PROVIDE YOUR OWN API KEY HERE
@@ -72,6 +73,27 @@ public class NetworkUtils {
         return url;
     }
 
+    /*
+    build the URL that points to the top rated end point
+     */
+    public static URL buildMovieDetailsUrl(int id) {
+        // get the start URL
+        String startUrl = BASE_URL + MOVIE_DETAILS_END_POINT + id;
+        URL url = null;
+        // append the key to the url
+        Uri uri = Uri.parse(startUrl).buildUpon()
+                .appendQueryParameter(API_KEY_PARAMETER, API_KEY_VALUE)
+                .build();
+
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
     public static String fetchHttpResponse(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
@@ -99,19 +121,14 @@ public class NetworkUtils {
      * @return array of Movie instances holding the individual movies in the response
      * @throws JSONException if an error occurs parsing the JSON response
      */
-    public static Movie[] parseJsonResult(String response) {
+    public static Movie[] parseJsonResultMovieList(String response) {
         // response is a JSONObject, so create a new one from the response
-        JSONObject jsonResult = null;
+        JSONObject jsonResult;
         // variables for storing parameters of the response
         JSONArray results = null;
         int id = -1;
-        boolean video = false;
-        int voteAverage = -1;
-        String title = null;
         String posterPath = null;
-        ArrayList<Integer> genres = new ArrayList<>();
-        boolean adult = false;
-        String overview = null;
+
         Movie[] movieArray = null;
 
         try {
@@ -128,33 +145,13 @@ public class NetworkUtils {
                 if (movieItem.has("id")){
                     id = movieItem.optInt("id");
                 }
-                if (movieItem.has("video")){
-                    video = movieItem.optBoolean("video");
-                }
-                if (movieItem.has("vote_average")){
-                    voteAverage = movieItem.optInt("vote_average");
-                }
-                if (movieItem.has("title")){
-                    title = movieItem.optString("title");
-                }
                 if (movieItem.has("poster_path")){
                     posterPath = movieItem.optString("poster_path");
                 }
-                if (movieItem.has("genre_ids")){
-                    JSONArray genre_ids = movieItem.getJSONArray("genre_ids");
-                    for(int j = 0; j < genre_ids.length(); j++){
-                        genres.add(genre_ids.getInt(j));
-                    }
-                }
-                if (movieItem.has("adult")){
-                    adult = movieItem.optBoolean("adult");
-                }
-                if (movieItem.has("overview")){
-                    overview = movieItem.optString("overview");
-                }
+
                 // instantiate a new Movie with the parameters from the movie item
-                Movie movie = new Movie(id, video, voteAverage, title, posterPath, genres, overview,
-                        adult);
+                Movie movie = new Movie(id, -1, null, posterPath,
+                        null, null, null, null, 0);
 
                 movieArray[i] = movie;
             }
@@ -162,6 +159,78 @@ public class NetworkUtils {
             e.printStackTrace();
         }
         return movieArray;
+    }
+
+    /**
+     * parse the input String response into a Movie array containing all the movies
+     * present in the query
+     * @param response: String holding the response from the http request
+     * @return array of Movie instances holding the individual movies in the response
+     * @throws JSONException if an error occurs parsing the JSON response
+     */
+    public static Movie parseJsonResultMovieDetails(String response) {
+        // response is a JSONObject, so create a new one from the response
+        JSONObject jsonResult;
+        // variables for storing parameters of the response
+        ArrayList<String> genres = new ArrayList<>();
+        String overview = null;
+        String posterPath = null;
+        String releaseDate = null;
+        int runTime = -1;
+        String tagline = null;
+        String title = null;
+        double voteAverage = 0.0;
+
+        Movie movie = null;
+
+        try {
+            jsonResult = new JSONObject(response);
+
+            if (jsonResult.has("genres")){
+                JSONArray genresArray = jsonResult.getJSONArray("genres");
+                for(int j = 0; j < genresArray.length(); j++){
+                    JSONObject currentGenre = genresArray.getJSONObject(j);
+                    if (currentGenre.has("name")){
+                        genres.add(currentGenre.getString("name"));
+                    }
+                }
+            }
+
+            if (jsonResult.has("overview")){
+                overview = jsonResult.optString("overview");
+            }
+
+            if (jsonResult.has("poster_path")){
+                posterPath = jsonResult.optString("poster_path");
+            }
+
+            if (jsonResult.has("release_date")){
+                releaseDate = jsonResult.optString("release_date");
+            }
+
+            if (jsonResult.has("runtime")){
+                runTime = jsonResult.optInt("runtime");
+            }
+            if (jsonResult.has("tagline")){
+                tagline = jsonResult.optString("tagline");
+            }
+
+            if (jsonResult.has("title")){
+                title = jsonResult.optString("title");
+            }
+
+            if (jsonResult.has("vote_average")){
+                voteAverage = jsonResult.getDouble("vote_average");
+            }
+
+            // instantiate a new Movie with the parameters
+            movie = new Movie(-1, voteAverage, title, posterPath, genres, overview, tagline,
+                    releaseDate, runTime);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return movie;
     }
 
 }

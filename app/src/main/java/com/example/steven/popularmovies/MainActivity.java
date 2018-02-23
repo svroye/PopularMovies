@@ -10,11 +10,11 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.example.steven.popularmovies.Data.MovieAdapter;
 import com.example.steven.popularmovies.Objects.Movie;
 import com.example.steven.popularmovies.Utils.NetworkUtils;
 
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity
                 // get the response from the request
                 String response = NetworkUtils.fetchHttpResponse(queryUrl);
                 // parse the response and assign the result to the Movie array
-                movies = NetworkUtils.parseJsonResult(response);
+                movies = NetworkUtils.parseJsonResultMovieList(response);
             } catch (IOException e) {
                 e.printStackTrace();
             }
