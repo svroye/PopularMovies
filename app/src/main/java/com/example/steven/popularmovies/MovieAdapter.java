@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.steven.popularmovies.Objects.Movie;
+import com.squareup.picasso.Picasso;
+
 /**
  * Created by Steven on 19/02/2018.
  */
@@ -16,16 +19,22 @@ import android.widget.TextView;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
     public static final String TAG = "MovieAdapter";
-    int mCount;
     GridItemClickListener mGridItemClickListener;
+    Context mContext;
+    Movie[] mData;
 
     public interface GridItemClickListener {
         void onGridItemClick(int clickedItemIndex);
     }
 
-    public MovieAdapter(int number, GridItemClickListener gridItemClickListener){
-        mCount = number;
+    public MovieAdapter(Context context, GridItemClickListener gridItemClickListener){
+        mContext = context;
         mGridItemClickListener = gridItemClickListener;
+    }
+
+    public void setData(Movie[] data){
+        mData = data;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -44,15 +53,21 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
-
+        Movie movie = mData[position];
+        String posterPath = movie.getPosterPath();
+        holder.bindViewWithData(posterPath);
     }
 
     @Override
     public int getItemCount() {
-        return mCount;
+        if (null == mData) return 0;
+        return mData.length;
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        public String BASE_URL = "http://image.tmdb.org/t/p/";
+        public String SIZE = "w185/";
 
         ImageView mImageView;
 
@@ -70,6 +85,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         public void onClick(View view) {
             mGridItemClickListener.onGridItemClick(getAdapterPosition());
         }
+
+        public void bindViewWithData(String endPath){
+            String imagePath = BASE_URL + SIZE + endPath;
+            Picasso.with(mContext)
+                    .load(imagePath)
+                    .fit()
+                    .into(mImageView);
+        }
+
     }
 
 }
