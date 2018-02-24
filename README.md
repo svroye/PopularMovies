@@ -10,9 +10,9 @@ By clicking on one of the movies, a detailed view is shown.
 In order for the application to work correctly, an API key needs to be requested on 
 https://developers.themoviedb.org/3/getting-started/introduction and filled in in the 
 NetworkUtils.java class
-'''
+```
 public static final String API_KEY_VALUE = "";
-'''
+```
 
 ### WHAT I LEARNED
 Important things I learned doing this project include:
