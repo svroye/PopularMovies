@@ -21,5 +21,7 @@
     <string name="no_internet_message" translatable="true">Your internet connection appears to be
         offline. Please try again after reconnecting to the internet.</string>
     <string name="contentDescription_poster">Movie poster</string>
+    <string name="error_message" translatable="true">An error occurred with retrieving the data.
+        Please try again later</string>
 
 </resources>

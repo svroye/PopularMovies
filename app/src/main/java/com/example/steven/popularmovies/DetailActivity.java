@@ -32,7 +32,7 @@ public class DetailActivity extends AppCompatActivity {
     TextView mReleaseDateTv;
     TextView mRatingTv;
     TextView mSynopsisTv;
-    TextView mNoInternetTv;
+    TextView mNoInternetErrorTv;
 
     public static final String BASE_URL = "http://image.tmdb.org/t/p/";
     public static final String SIZE = "w185/";
@@ -51,7 +51,7 @@ public class DetailActivity extends AppCompatActivity {
         mReleaseDateTv = findViewById(R.id.detailActivity_releaseDate);
         mRatingTv = findViewById(R.id.detailActivity_voteAverage);
         mSynopsisTv = findViewById(R.id.detailActivity_synopsis);
-        mNoInternetTv = findViewById(R.id.detailActivity_noInternetTextView);
+        mNoInternetErrorTv = findViewById(R.id.detailActivity_noInternetOrErrorTv);
 
         Intent intentThatStartedActivity = getIntent();
 
@@ -74,7 +74,7 @@ public class DetailActivity extends AppCompatActivity {
     */
     public void showLoadingIndicator(){
         mScrollView.setVisibility(View.GONE);
-        mNoInternetTv.setVisibility(View.GONE);
+        mNoInternetErrorTv.setVisibility(View.GONE);
         mPosterIv.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.VISIBLE);
     }
@@ -85,18 +85,31 @@ public class DetailActivity extends AppCompatActivity {
      */
     public void hideLoadingIndicator(){
         mScrollView.setVisibility(View.VISIBLE);
-        mNoInternetTv.setVisibility(View.GONE);
+        mNoInternetErrorTv.setVisibility(View.GONE);
         mPosterIv.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.GONE);
     }
 
     /*
-called when no internet is available. Shows the error message
-and hides the loading indicator (ProgressBar) and RecyclerView
-*/
+    called when no internet is available. Shows the error message
+    and hides the loading indicator (ProgressBar) and RecyclerView
+    */
     public void showNoInternetMessage(){
         mScrollView.setVisibility(View.GONE);
-        mNoInternetTv.setVisibility(View.VISIBLE);
+        mNoInternetErrorTv.setText(getString(R.string.no_internet_message));
+        mNoInternetErrorTv.setVisibility(View.VISIBLE);
+        mPosterIv.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+    }
+
+    /*
+    called when an error occurs. Shows the error message
+    and hides the loading indicator (ProgressBar) and RecyclerView
+    */
+    public void showErrorMessage(){
+        mScrollView.setVisibility(View.GONE);
+        mNoInternetErrorTv.setText(getString(R.string.error_message));
+        mNoInternetErrorTv.setVisibility(View.VISIBLE);
         mPosterIv.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.GONE);
     }
@@ -133,8 +146,12 @@ and hides the loading indicator (ProgressBar) and RecyclerView
         protected void onPostExecute(Movie s) {
             super.onPostExecute(s);
             // loading has finished, so hide the loading indicator and show the results
-            hideLoadingIndicator();
-            bindDataToUI(s);
+            if (s != null){
+                hideLoadingIndicator();
+                bindDataToUI(s);
+            } else {
+                showErrorMessage();
+            }
         }
     }
 

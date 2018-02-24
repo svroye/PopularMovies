@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity
     // Loading indicator for when the data is loaded
     ProgressBar mProgressBar;
 
-    TextView mNoInternetTv;
+    TextView mNoInternetErrorTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity
 
         mRecyclerView = findViewById(R.id.mainActivity_recyclerView);
         mProgressBar =  findViewById(R.id.mainActivity_progressBar);
-        mNoInternetTv = findViewById(R.id.mainActivity_noInternetTextView);
+        mNoInternetErrorTv = findViewById(R.id.mainActivity_noInternetOrErrorTv);
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.registerOnSharedPreferenceChangeListener(this);
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity
     public void showLoadingIndicator(){
         mRecyclerView.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.VISIBLE);
-        mNoInternetTv.setVisibility(View.GONE);
+        mNoInternetErrorTv.setVisibility(View.GONE);
     }
 
     /*
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity
     public void hideLoadingIndicator(){
         mRecyclerView.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.GONE);
-        mNoInternetTv.setVisibility(View.GONE);
+        mNoInternetErrorTv.setVisibility(View.GONE);
     }
 
     /*
@@ -151,7 +151,19 @@ public class MainActivity extends AppCompatActivity
     public void showNoInternetMessage(){
         mRecyclerView.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.GONE);
-        mNoInternetTv.setVisibility(View.VISIBLE);
+        mNoInternetErrorTv.setText(getString(R.string.no_internet_message));
+        mNoInternetErrorTv.setVisibility(View.VISIBLE);
+    }
+
+    /*
+    called when an error occurred. Shows the error message
+    and hides the loading indicator (ProgressBar) and RecyclerView
+    */
+    public void showErrorMessage(){
+        mRecyclerView.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+        mNoInternetErrorTv.setText(getString(R.string.error_message));
+        mNoInternetErrorTv.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -197,10 +209,13 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(Movie[] s) {
             super.onPostExecute(s);
-            Log.d(TAG, "Results: " + s.length);
             // loading has finished, so hide the loading indicator and show the results
             hideLoadingIndicator();
-            mAdapter.setData(s);
+            if (s != null) {
+                mAdapter.setData(s);
+            } else {
+                showErrorMessage();
+            }
         }
     }
 
