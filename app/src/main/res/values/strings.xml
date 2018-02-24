@@ -1,3 +1,25 @@
 <resources>
+    <!-- activity names -->
     <string name="app_name">Popular Movies</string>
+    <string name="settings_activity">Settings</string>
+
+    <!-- Settings strings -->
+    <string name="main_menu_settings_item" translatable="true">Settings</string>
+
+    <string name="pref_order_by_label" translatable="true">Order by</string>
+    <string name="pref_order_by_most_popular_label" translatable="true">Most popular</string>
+    <string name="pref_order_by_top_rated_label" translatable="true">Top rated</string>
+
+    <string name="pref_order_by_key" translatable="false">pref_order_by</string>
+    <string name="pref_order_by_most_popular_value" translatable="false">most-popular</string>
+    <string name="pref_order_by_top_rated_value" translatable="false">top_rated</string>
+
+    <string name="short_summary_description" translatable="true">Synopsis</string>
+
+    <string name="runtime" translatable="true">%d min</string>
+    <string name="rating" translatable="true">%.1f/10</string>
+    <string name="no_internet_message" translatable="true">Your internet connection appears to be
+        offline. Please try again after reconnecting to the internet.</string>
+    <string name="contentDescription_poster">Movie poster</string>
+
 </resources>

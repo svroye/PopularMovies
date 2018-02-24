@@ -1,0 +1,11 @@
+# POPULAR MOVIES
+
+## ABOUT 
+This Android application is part of the Udacity's **Android Developer Nanodegree**.
+The objective is to use an API provided by https://www.themoviedb.org/ to make a call to get a list of movies 
+and show the result on the screen. Depending on the user preferences, a different call has to be made.
+By clicking on one of the movies, a detailed view is shown.
+
+## NOTE
+In order for the application to work correctly, an API key needs to be requested on 
+https://developers.themoviedb.org/3/getting-started/introduction
