@@ -19,13 +19,14 @@
         android:id="@+id/mainActivity_progressBar"/>
 
     <TextView
-        android:layout_margin="8dp"
-        android:id="@+id/mainActivity_noInternetTextView"
+        android:textAlignment="center"
+        android:padding="8dp"
+        android:id="@+id/mainActivity_noInternetOrErrorTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:textColor="@android:color/white"
-        android:text="@string/no_internet_message"
+        tools:text="@string/no_internet_message"
         android:textSize="16sp"
         android:visibility="gone"/>
 

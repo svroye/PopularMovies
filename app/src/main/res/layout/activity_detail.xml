@@ -127,17 +127,18 @@
         app:layout_constraintGuide_percent="0.5"/>
 
     <TextView
+        android:visibility="gone"
+        android:textAlignment="center"
         android:padding="8dp"
-        android:id="@+id/detailActivity_noInternetTextView"
+        android:id="@+id/detailActivity_noInternetOrErrorTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_internet_message"
+        tools:text="@string/no_internet_message"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="parent"
-        />
+        app:layout_constraintTop_toBottomOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
