@@ -1,5 +1,8 @@
 package com.example.steven.popularmovies.Utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 
 import com.example.steven.popularmovies.Objects.Movie;
@@ -119,7 +122,6 @@ public class NetworkUtils {
      * present in the query
      * @param response: String holding the response from the http request
      * @return array of Movie instances holding the individual movies in the response
-     * @throws JSONException if an error occurs parsing the JSON response
      */
     public static Movie[] parseJsonResultMovieList(String response) {
         // response is a JSONObject, so create a new one from the response
@@ -166,7 +168,6 @@ public class NetworkUtils {
      * present in the query
      * @param response: String holding the response from the http request
      * @return array of Movie instances holding the individual movies in the response
-     * @throws JSONException if an error occurs parsing the JSON response
      */
     public static Movie parseJsonResultMovieDetails(String response) {
         // response is a JSONObject, so create a new one from the response
@@ -231,6 +232,15 @@ public class NetworkUtils {
             e.printStackTrace();
         }
         return movie;
+    }
+
+    // following code is based on the stackoverflow post for checking the network state of the app
+    // https://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
 }

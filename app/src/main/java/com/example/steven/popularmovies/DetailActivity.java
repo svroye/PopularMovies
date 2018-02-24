@@ -4,17 +4,15 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.steven.popularmovies.Objects.Movie;
 import com.example.steven.popularmovies.Utils.NetworkUtils;
 import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.net.URL;
@@ -26,6 +24,7 @@ public class DetailActivity extends AppCompatActivity {
     public int movieId;
 
     ProgressBar mProgressBar;
+    ScrollView mScrollView;
     TextView mTitleTv;
     TextView mTaglineTv;
     ImageView mPosterIv;
@@ -33,40 +32,50 @@ public class DetailActivity extends AppCompatActivity {
     TextView mReleaseDateTv;
     TextView mRatingTv;
     TextView mSynopsisTv;
+    TextView mNoInternetTv;
 
-    public String BASE_URL = "http://image.tmdb.org/t/p/";
-    public String SIZE = "w185/";
+    public static final String BASE_URL = "http://image.tmdb.org/t/p/";
+    public static final String SIZE = "w185/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.detailActivity_ProgressBar);
-        mTitleTv = (TextView) findViewById(R.id.detailActivity_Title);
-        mTaglineTv = (TextView) findViewById(R.id.detailActivity_Tagline);
-        mPosterIv = (ImageView) findViewById(R.id.detailActivity_moviePoster);
-        mRuntimeTv = (TextView) findViewById(R.id.detailActivity_runtime);
-        mReleaseDateTv = (TextView) findViewById(R.id.detailActivity_releaseDate);
-        mRatingTv = (TextView) findViewById(R.id.detailActivity_voteAverage);
-        mSynopsisTv = (TextView) findViewById(R.id.detailActivity_synopsis);
+        mProgressBar = findViewById(R.id.detailActivity_ProgressBar);
+        mScrollView =  findViewById(R.id.detailActivity_content);
+        mTitleTv =  findViewById(R.id.detailActivity_Title);
+        mTaglineTv = findViewById(R.id.detailActivity_Tagline);
+        mPosterIv =  findViewById(R.id.detailActivity_moviePoster);
+        mRuntimeTv = findViewById(R.id.detailActivity_runtime);
+        mReleaseDateTv = findViewById(R.id.detailActivity_releaseDate);
+        mRatingTv = findViewById(R.id.detailActivity_voteAverage);
+        mSynopsisTv = findViewById(R.id.detailActivity_synopsis);
+        mNoInternetTv = findViewById(R.id.detailActivity_noInternetTextView);
 
         Intent intentThatStartedActivity = getIntent();
 
         if(intentThatStartedActivity != null){
             if (intentThatStartedActivity.hasExtra("id")){
                 movieId = intentThatStartedActivity.getIntExtra("id", -1);
-                (new MovieDetailsQueryTask()).execute(NetworkUtils.buildMovieDetailsUrl(movieId));
+                if (NetworkUtils.isOnline(this)){
+                    (new MovieDetailsQueryTask()).execute(NetworkUtils.buildMovieDetailsUrl(movieId));
+                } else {
+                    showNoInternetMessage();
+                }
             }
 
         }
     }
 
     /*
-   called when the loading is started. Hides the results (RecyclerView)
+   called when the loading is started. Hides the results
    and shows the loading indicator (ProgressBar)
     */
     public void showLoadingIndicator(){
+        mScrollView.setVisibility(View.GONE);
+        mNoInternetTv.setVisibility(View.GONE);
+        mPosterIv.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
@@ -75,6 +84,20 @@ public class DetailActivity extends AppCompatActivity {
     and hides the loading indicator (ProgressBar)
      */
     public void hideLoadingIndicator(){
+        mScrollView.setVisibility(View.VISIBLE);
+        mNoInternetTv.setVisibility(View.GONE);
+        mPosterIv.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.GONE);
+    }
+
+    /*
+called when no internet is available. Shows the error message
+and hides the loading indicator (ProgressBar) and RecyclerView
+*/
+    public void showNoInternetMessage(){
+        mScrollView.setVisibility(View.GONE);
+        mNoInternetTv.setVisibility(View.VISIBLE);
+        mPosterIv.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.GONE);
     }
 
@@ -109,7 +132,6 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Movie s) {
             super.onPostExecute(s);
-            Log.d(TAG, "Results: " + s);
             // loading has finished, so hide the loading indicator and show the results
             hideLoadingIndicator();
             bindDataToUI(s);
@@ -148,12 +170,12 @@ public class DetailActivity extends AppCompatActivity {
 
         int runtime = movie.getRuntime();
         if (runtime != 0){
-            mRuntimeTv.setText(runtime + " min");
+            mRuntimeTv.setText(getString(R.string.runtime, runtime));
         }
 
         double rating = movie.getVoteAverage();
         if (rating != 0.0){
-            mRatingTv.setText(rating + "/10");
+            mRatingTv.setText(getString(R.string.rating, rating));
         }
 
         String synopsis = movie.getOverview();

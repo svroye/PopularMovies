@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.steven.popularmovies.Data.MovieAdapter;
 import com.example.steven.popularmovies.Objects.Movie;
@@ -31,18 +32,19 @@ public class MainActivity extends AppCompatActivity
     RecyclerView mRecyclerView;
     // adapter to set to the RecyclerView
     MovieAdapter mAdapter;
-    private static final int NUM_LIST_ITEMS = 100;
     // Loading indicator for when the data is loaded
     ProgressBar mProgressBar;
 
-    // https://stackoverflow.com/questions/40587168/simple-android-grid-example-using-recyclerview-with-gridlayoutmanager-like-the
+    TextView mNoInternetTv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.mainActivity_recyclerView);
-        mProgressBar = (ProgressBar) findViewById(R.id.mainActivity_progressBar);
+        mRecyclerView = findViewById(R.id.mainActivity_recyclerView);
+        mProgressBar =  findViewById(R.id.mainActivity_progressBar);
+        mNoInternetTv = findViewById(R.id.mainActivity_noInternetTextView);
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.registerOnSharedPreferenceChangeListener(this);
@@ -60,7 +62,12 @@ public class MainActivity extends AppCompatActivity
 
         MovieQueryTask task = new MovieQueryTask();
 
-        task.execute(requestUrl);
+        if (NetworkUtils.isOnline(this)){
+            task.execute(requestUrl);
+        } else {
+            showNoInternetMessage();
+        }
+
     }
 
 
@@ -124,6 +131,7 @@ public class MainActivity extends AppCompatActivity
     public void showLoadingIndicator(){
         mRecyclerView.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.VISIBLE);
+        mNoInternetTv.setVisibility(View.GONE);
     }
 
     /*
@@ -133,11 +141,22 @@ public class MainActivity extends AppCompatActivity
     public void hideLoadingIndicator(){
         mRecyclerView.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.GONE);
+        mNoInternetTv.setVisibility(View.GONE);
+    }
+
+    /*
+    called when no internet is available. Shows the error message
+    and hides the loading indicator (ProgressBar) and RecyclerView
+    */
+    public void showNoInternetMessage(){
+        mRecyclerView.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+        mNoInternetTv.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key == getString(R.string.pref_order_by_key)){
+        if (key.equals(getString(R.string.pref_order_by_key))){
             String preferredOrdering = sharedPreferences.getString(
                     getString(R.string.pref_order_by_key),
                     getString(R.string.pref_order_by_most_popular_label));
@@ -184,4 +203,6 @@ public class MainActivity extends AppCompatActivity
             mAdapter.setData(s);
         }
     }
+
+
 }

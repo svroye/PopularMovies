@@ -16,4 +16,10 @@
 
     <string name="short_summary_description" translatable="true">Synopsis</string>
 
+    <string name="runtime" translatable="true">%d min</string>
+    <string name="rating" translatable="true">%.1f/10</string>
+    <string name="no_internet_message" translatable="true">Your internet connection appears to be
+        offline. Please try again after reconnecting to the internet.</string>
+    <string name="contentDescription_poster">Movie poster</string>
+
 </resources>

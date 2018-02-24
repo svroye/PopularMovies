@@ -44,9 +44,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         boolean shouldAttachToParentImmediately = false;
 
         View view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
-        MovieViewHolder viewHolder = new MovieViewHolder(view);
-
-        return viewHolder;
+        return new MovieViewHolder(view);
 
     }
 
@@ -65,8 +63,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public String BASE_URL = "http://image.tmdb.org/t/p/";
-        public String SIZE = "w185/";
+        public final String BASE_URL = "http://image.tmdb.org/t/p/";
+        public final String SIZE = "w185/";
 
         ImageView mImageView;
 
