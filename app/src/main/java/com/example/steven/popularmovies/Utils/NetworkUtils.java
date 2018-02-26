@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 
+import com.example.steven.popularmovies.BuildConfig;
 import com.example.steven.popularmovies.Objects.Movie;
 
 import org.json.JSONArray;
@@ -32,7 +33,7 @@ public class NetworkUtils {
 
     public static final String API_KEY_PARAMETER = "api_key";
     // PLEASE PROVIDE YOUR OWN API KEY HERE
-    public static final String API_KEY_VALUE = "";
+    public static final String API_KEY_VALUE = BuildConfig.API_KEY;
 
     /*
     build the URL that points to the popular movies end point
