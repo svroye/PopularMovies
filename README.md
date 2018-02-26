@@ -9,9 +9,10 @@ By clicking on one of the movies, a detailed view is shown.
 ### NOTE
 In order for the application to work correctly, an API key needs to be requested on 
 https://developers.themoviedb.org/3/getting-started/introduction and filled in in the 
-NetworkUtils.java class
+gradle.properties file:
 ```
-public static final String API_KEY_VALUE = "";
+# API key used for the service call
+API_KEY = "aaaaaaaaa"
 ```
 
 ### WHAT I LEARNED
