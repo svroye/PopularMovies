@@ -10,7 +10,8 @@ import static java.lang.System.out;
 /**
  * Created by Steven on 19/02/2018.
  */
-// code for the parcelable based on https://guides.codepath.com/android/using-parcelable
+// code for the parcelable based on
+// https://guides.codepath.com/android/using-parcelable
 
 public class Movie implements Parcelable {
 
