@@ -10,6 +10,8 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.example.steven.popularmovies.Data.AsyncTaskCompleteListener;
+import com.example.steven.popularmovies.Data.MovieDetailsAsyncTask;
 import com.example.steven.popularmovies.Objects.Movie;
 import com.example.steven.popularmovies.Utils.NetworkUtils;
 import com.squareup.picasso.Picasso;
@@ -58,39 +60,27 @@ public class DetailActivity extends AppCompatActivity {
         if(intentThatStartedActivity != null){
             if (intentThatStartedActivity.hasExtra("id")){
                 movieId = intentThatStartedActivity.getIntExtra("id", -1);
-                if (NetworkUtils.isOnline(this)){
-                    (new MovieDetailsQueryTask()).execute(NetworkUtils.buildMovieDetailsUrl(movieId));
-                } else {
-                    showNoInternetMessage();
-                }
+                URL url = NetworkUtils.buildMovieDetailsUrl(movieId);
+                loadData(url);
             }
-
         }
     }
 
-    /*
-   called when the loading is started. Hides the results
-   and shows the loading indicator (ProgressBar)
-    */
-    public void showLoadingIndicator(){
-        mScrollView.setVisibility(View.GONE);
-        mNoInternetErrorTv.setVisibility(View.GONE);
-        mPosterIv.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.VISIBLE);
-    }
-
-    /*
-    called when the loading has finished. Shows the results (RecyclerView)
-    and hides the loading indicator (ProgressBar)
+    /**
+     * starts the AsyncTask to fetch data for a certain movie
+     * First checks whether an internet connection is available
+     * If not, the AsyncTask is not started and an error message is shown
+     * @param id : id of the movie details to be loaded
      */
-    public void hideLoadingIndicator(){
-        mScrollView.setVisibility(View.VISIBLE);
-        mNoInternetErrorTv.setVisibility(View.GONE);
-        mPosterIv.setVisibility(View.VISIBLE);
-        mProgressBar.setVisibility(View.GONE);
+    public void loadData(URL url){
+        if (NetworkUtils.isOnline(this)){
+            (new MovieDetailsAsyncTask(this, new MovieDetailCompleteListener())).execute(url);
+        } else {
+            showNoInternetMessage();
+        }
     }
 
-    /*
+    /**
     called when no internet is available. Shows the error message
     and hides the loading indicator (ProgressBar) and RecyclerView
     */
@@ -102,59 +92,59 @@ public class DetailActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.GONE);
     }
 
-    /*
-    called when an error occurs. Shows the error message
-    and hides the loading indicator (ProgressBar) and RecyclerView
-    */
-    public void showErrorMessage(){
-        mScrollView.setVisibility(View.GONE);
-        mNoInternetErrorTv.setText(getString(R.string.error_message));
-        mNoInternetErrorTv.setVisibility(View.VISIBLE);
-        mPosterIv.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.GONE);
-    }
+    public class MovieDetailCompleteListener implements AsyncTaskCompleteListener<Movie> {
 
-    public class MovieDetailsQueryTask extends AsyncTask<URL, Void, Movie> {
-
+        /**
+         * binds the resulting Movie object to the correct Views in the UI
+         * @param result The resulting object from the AsyncTask.
+         */
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // start the loading, so show the loading indicator and hide the recyclerview
-            showLoadingIndicator();
+        public void onTaskComplete(Movie result) {
+            bindDataToUI(result);
         }
 
+        /**
+       called when the loading is started. Hides the results
+       and shows the loading indicator (ProgressBar)
+        */
         @Override
-        protected Movie doInBackground(URL... urls) {
-            // get the input URL
-            URL queryUrl = urls[0];
-            if (null == queryUrl) return null;
-            // instantiate  new Movie array for storing the results of the query
-            Movie movie = null;
-
-            try {
-                // get the response from the request
-                String response = NetworkUtils.fetchHttpResponse(queryUrl);
-                // parse the response and assign the result to the Movie array
-                movie = NetworkUtils.parseJsonResultMovieDetails(response);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return movie;
+        public void showLoadingIndicator() {
+            mScrollView.setVisibility(View.GONE);
+            mNoInternetErrorTv.setVisibility(View.GONE);
+            mPosterIv.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.VISIBLE);
         }
 
+        /**
+        called when the loading has finished. Shows the results (RecyclerView)
+        and hides the loading indicator (ProgressBar)
+         */
         @Override
-        protected void onPostExecute(Movie s) {
-            super.onPostExecute(s);
-            // loading has finished, so hide the loading indicator and show the results
-            if (s != null){
-                hideLoadingIndicator();
-                bindDataToUI(s);
-            } else {
-                showErrorMessage();
-            }
+        public void hideLoadingIndicator() {
+            mScrollView.setVisibility(View.VISIBLE);
+            mNoInternetErrorTv.setVisibility(View.GONE);
+            mPosterIv.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.GONE);
+        }
+
+        /**
+        called when an error occurs. Shows the error message
+        and hides the loading indicator (ProgressBar) and RecyclerView
+        */
+        @Override
+        public void showErrorMessage() {
+            mScrollView.setVisibility(View.GONE);
+            mNoInternetErrorTv.setText(getString(R.string.error_message));
+            mNoInternetErrorTv.setVisibility(View.VISIBLE);
+            mPosterIv.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.GONE);
         }
     }
 
+    /**
+     * binds the the data in the Movie object to the UI
+     * @param movie
+     */
     public void bindDataToUI(Movie movie){
         String title = movie.getTitle();
         if (title != null) {

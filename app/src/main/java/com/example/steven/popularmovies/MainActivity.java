@@ -2,7 +2,6 @@ package com.example.steven.popularmovies;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
@@ -15,7 +14,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.steven.popularmovies.Data.AsyncTaskCompleteListener;
 import com.example.steven.popularmovies.Data.MovieAdapter;
+import com.example.steven.popularmovies.Data.MovieListAsyncTask;
 import com.example.steven.popularmovies.Objects.Movie;
 import com.example.steven.popularmovies.Utils.NetworkUtils;
 
@@ -60,14 +61,18 @@ public class MainActivity extends AppCompatActivity
 
         URL requestUrl = getPreferredUrl(preferredOrdering);
 
-        MovieQueryTask task = new MovieQueryTask();
+        loadData(requestUrl);
 
+    }
+
+    public void loadData(URL url){
         if (NetworkUtils.isOnline(this)){
-            task.execute(requestUrl);
+            //task.execute(requestUrl);
+            // new FetchMyDataTask(this, new FetchMyDataTaskCompleteListener()).execute("InputString");
+            new MovieListAsyncTask(this, new MovieListCompleteListener()).execute(url);
         } else {
             showNoInternetMessage();
         }
-
     }
 
 
@@ -124,25 +129,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(intentToDetailActivity);
     }
 
-    /*
-    called when the loading is started. Hides the results (RecyclerView)
-    and shows the loading indicator (ProgressBar)
-     */
-    public void showLoadingIndicator(){
-        mRecyclerView.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.VISIBLE);
-        mNoInternetErrorTv.setVisibility(View.GONE);
-    }
-
-    /*
-    called when the loading has finished. Shows the results (RecyclerView)
-    and hides the loading indicator (ProgressBar)
-     */
-    public void hideLoadingIndicator(){
-        mRecyclerView.setVisibility(View.VISIBLE);
-        mProgressBar.setVisibility(View.GONE);
-        mNoInternetErrorTv.setVisibility(View.GONE);
-    }
 
     /*
     called when no internet is available. Shows the error message
@@ -155,17 +141,6 @@ public class MainActivity extends AppCompatActivity
         mNoInternetErrorTv.setVisibility(View.VISIBLE);
     }
 
-    /*
-    called when an error occurred. Shows the error message
-    and hides the loading indicator (ProgressBar) and RecyclerView
-    */
-    public void showErrorMessage(){
-        mRecyclerView.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.GONE);
-        mNoInternetErrorTv.setText(getString(R.string.error_message));
-        mNoInternetErrorTv.setVisibility(View.VISIBLE);
-    }
-
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_order_by_key))){
@@ -173,51 +148,54 @@ public class MainActivity extends AppCompatActivity
                     getString(R.string.pref_order_by_key),
                     getString(R.string.pref_order_by_most_popular_label));
             URL newURL = getPreferredUrl(preferredOrdering);
-            (new MovieQueryTask()).execute(newURL);
+            loadData(newURL);
         }
     }
 
+    public class MovieListCompleteListener implements AsyncTaskCompleteListener<Movie[]> {
 
-    public class MovieQueryTask extends AsyncTask<URL, Void, Movie[]> {
-
+        /**
+         * sets the new Movie array to the adapter
+         * @param result The resulting object from the AsyncTask.
+         */
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // start the loading, so show the loading indicator and hide the recyclerview
-            showLoadingIndicator();
+        public void onTaskComplete(Movie[] result) {
+            mAdapter.setData(result);
         }
 
+        /**
+         called when the loading is started. Hides the results (RecyclerView)
+         and shows the loading indicator (ProgressBar)
+         */
         @Override
-        protected Movie[] doInBackground(URL... urls) {
-            // get the input URL
-            URL queryUrl = urls[0];
-            if (null == queryUrl) return null;
-            // instantiate  new Movie array for storing the results of the query
-            Movie[] movies = null;
-
-            try {
-                // get the response from the request
-                String response = NetworkUtils.fetchHttpResponse(queryUrl);
-                // parse the response and assign the result to the Movie array
-                movies = NetworkUtils.parseJsonResultMovieList(response);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return movies;
+        public void showLoadingIndicator() {
+            mRecyclerView.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.VISIBLE);
+            mNoInternetErrorTv.setVisibility(View.GONE);
         }
 
+        /**
+        called when the loading has finished. Shows the results (RecyclerView)
+        and hides the loading indicator (ProgressBar)
+         */
         @Override
-        protected void onPostExecute(Movie[] s) {
-            super.onPostExecute(s);
-            // loading has finished, so hide the loading indicator and show the results
-            hideLoadingIndicator();
-            if (s != null) {
-                mAdapter.setData(s);
-            } else {
-                showErrorMessage();
-            }
+        public void hideLoadingIndicator() {
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.GONE);
+            mNoInternetErrorTv.setVisibility(View.GONE);
+        }
+
+        /**
+        called when an error occurred. Shows the error message
+        and hides the loading indicator (ProgressBar) and RecyclerView
+        */
+        @Override
+        public void showErrorMessage() {
+            mRecyclerView.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.GONE);
+            mNoInternetErrorTv.setText(getString(R.string.error_message));
+            mNoInternetErrorTv.setVisibility(View.VISIBLE);
         }
     }
-
 
 }
