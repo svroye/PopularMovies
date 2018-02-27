@@ -1,7 +1,10 @@
 package com.example.steven.popularmovies;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.AsyncTask;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.steven.popularmovies.Data.AsyncTaskCompleteListener;
 import com.example.steven.popularmovies.Data.MovieDetailsAsyncTask;
@@ -35,6 +39,9 @@ public class DetailActivity extends AppCompatActivity {
     TextView mRatingTv;
     TextView mSynopsisTv;
     TextView mNoInternetErrorTv;
+    FloatingActionButton mFab;
+
+    private boolean isFavorite = false;
 
     public static final String BASE_URL = "http://image.tmdb.org/t/p/";
     public static final String SIZE = "w185/";
@@ -54,6 +61,7 @@ public class DetailActivity extends AppCompatActivity {
         mRatingTv = findViewById(R.id.detailActivity_voteAverage);
         mSynopsisTv = findViewById(R.id.detailActivity_synopsis);
         mNoInternetErrorTv = findViewById(R.id.detailActivity_noInternetOrErrorTv);
+        mFab = findViewById(R.id.detailActivity_fab);
 
         Intent intentThatStartedActivity = getIntent();
 
@@ -64,13 +72,42 @@ public class DetailActivity extends AppCompatActivity {
                 loadData(url);
             }
         }
+
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setFavoriteButton(!isFavorite);
+            }
+        });
     }
+
+    /**
+     * changes the FloatingActionButton's colour and icon dependent on whether the user selects it
+     * to be a favorite or not
+     * @param setFavorite boolean representing whether the button needs to become favorite or not
+     */
+    public void setFavoriteButton(boolean setFavorite){
+        Toast mToast;
+        if(setFavorite){
+            mFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(DetailActivity.this,R.color.colorFavorite)));
+            mFab.setImageResource(R.drawable.ic_star_border_black_24dp);
+            isFavorite = true;
+            mToast = Toast.makeText(this, getString(R.string.movie_added_to_favorites), Toast.LENGTH_SHORT);
+        } else {
+            mFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(DetailActivity.this,R.color.colorAccent)));
+            mFab.setImageResource(R.drawable.ic_star_border_white_24dp);
+            isFavorite = false;
+            mToast = Toast.makeText(this, getString(R.string.movie_removed_from_favorites), Toast.LENGTH_SHORT);
+        }
+        mToast.show();
+    }
+
 
     /**
      * starts the AsyncTask to fetch data for a certain movie
      * First checks whether an internet connection is available
      * If not, the AsyncTask is not started and an error message is shown
-     * @param id : id of the movie details to be loaded
+     * @param url : url to be called
      */
     public void loadData(URL url){
         if (NetworkUtils.isOnline(this)){

@@ -24,5 +24,6 @@
     <string name="error_message" translatable="true">An error occurred with retrieving the data.
         Please try again later</string>
     <string name="test" >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras volutpat consectetur enim, nec mattis lorem dictum vitae. Vestibulum eleifend, mi ut ornare lacinia, elit nulla consectetur ipsum, tincidunt luctus lectus sapien non sem. Praesent congue ullamcorper tempus. Aenean vehicula eget tortor sit amet aliquet. Praesent felis libero, sagittis ac nibh sed, aliquet elementum arcu. Quisque purus ipsum, vestibulum id maximus a, consequat commodo velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris aliquet quam sed nulla tristique, ac pellentesque ligula bibendum. Proin elementum convallis erat, quis faucibus nulla malesuada a. Pellentesque tincidunt orci eget elit congue, nec volutpat est suscipit. Vivamus laoreet felis eros, ut commodo nibh ultricies et. Mauris eget risus mollis, imperdiet nisl ac, efficitur mi. Sed vulputate tempus orci, ultricies semper turpis aliquet at. Nulla finibus ligula at orci cursus, ac accumsan nisi lacinia. In eget justo euismod nisl congue posuere</string>
-
+    <string name="movie_added_to_favorites">Movie added to your favorites!</string>
+    <string name="movie_removed_from_favorites">Movie removed from your favorites!</string>
 </resources>
