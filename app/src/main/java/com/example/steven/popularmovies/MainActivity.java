@@ -85,8 +85,10 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
-    /*
-    Create the option menu in the header
+    /**
+     * Create the option menu in the header
+     * @param menu to inflate
+     * @return
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,17 +96,12 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    /*
-        Actions for what should happen when one of the options
-        in the menu is selected
-         */
+    /**
+     * Actions for what should happen when one of the options
+     * in the menu is selected
+     * @param item selected item in the list
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -129,6 +126,12 @@ public class MainActivity extends AppCompatActivity
         startActivity(intentToDetailActivity);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
 
     /*
     called when no internet is available. Shows the error message

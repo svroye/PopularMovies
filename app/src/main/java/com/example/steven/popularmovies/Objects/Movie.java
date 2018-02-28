@@ -24,6 +24,8 @@ public class Movie implements Parcelable {
     public String mTagline;
     public String mReleaseDate;
     public int mRuntime;
+    public ArrayList<String> mTrailerKeys;
+    public ArrayList<MovieReview> mReviews;
 
 
     /*
@@ -31,7 +33,8 @@ public class Movie implements Parcelable {
      */
     public Movie(int id, double voteAverage, String title, String posterPath,
                  ArrayList<String> genres, String overview, String tagline,
-                 String releaseDate, int runtime){
+                 String releaseDate, int runtime, ArrayList<String> trailers,
+                 ArrayList<MovieReview> reviews){
         mID = id;
         mVoteAverage = voteAverage;
         mTitle = title;
@@ -41,6 +44,8 @@ public class Movie implements Parcelable {
         mTagline = tagline;
         mReleaseDate = releaseDate;
         mRuntime = runtime;
+        mTrailerKeys = trailers;
+        mReviews = reviews;
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -91,6 +96,14 @@ public class Movie implements Parcelable {
         return mRuntime;
     }
 
+    public ArrayList<String> getTrailerIds() {
+        return mTrailerKeys;
+    }
+
+    public ArrayList<MovieReview> getReviews() {
+        return mReviews;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -106,6 +119,8 @@ public class Movie implements Parcelable {
         mTagline = parcel.readString();
         mReleaseDate = parcel.readString();
         mRuntime = parcel.readInt();
+        mTrailerKeys = (ArrayList<String>) parcel.readSerializable();
+        mReviews = (ArrayList<MovieReview>) parcel.readSerializable();
     }
 
     @Override
@@ -119,5 +134,7 @@ public class Movie implements Parcelable {
         parcel.writeString(mTagline);
         parcel.writeString(mReleaseDate);
         parcel.writeInt(mRuntime);
+        parcel.writeSerializable(mTrailerKeys);
+        parcel.writeSerializable(mReviews);
     }
 }

@@ -8,7 +8,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -17,11 +19,13 @@ import android.widget.Toast;
 import com.example.steven.popularmovies.Data.AsyncTaskCompleteListener;
 import com.example.steven.popularmovies.Data.MovieDetailsAsyncTask;
 import com.example.steven.popularmovies.Objects.Movie;
+import com.example.steven.popularmovies.Objects.MovieReview;
 import com.example.steven.popularmovies.Utils.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -40,6 +44,8 @@ public class DetailActivity extends AppCompatActivity {
     TextView mSynopsisTv;
     TextView mNoInternetErrorTv;
     FloatingActionButton mFab;
+    LinearLayout mTrailersSection;
+    LinearLayout mReviewsSection;
 
     private boolean isFavorite = false;
 
@@ -62,6 +68,8 @@ public class DetailActivity extends AppCompatActivity {
         mSynopsisTv = findViewById(R.id.detailActivity_synopsis);
         mNoInternetErrorTv = findViewById(R.id.detailActivity_noInternetOrErrorTv);
         mFab = findViewById(R.id.detailActivity_fab);
+        mTrailersSection = findViewById(R.id.detailActivity_trailerSection);
+        mReviewsSection = findViewById(R.id.detailActivity_reviewSection);
 
         Intent intentThatStartedActivity = getIntent();
 
@@ -227,5 +235,70 @@ public class DetailActivity extends AppCompatActivity {
             mSynopsisTv.setText(synopsis);
         }
 
+        ArrayList<String> trailers = movie.getTrailerIds();
+        if (trailers.size() != 0){
+            for ( int i = 0; i < trailers.size(); i++ ){
+                String trailerId = trailers.get(i);
+                appendTrailer(trailerId);
+            }
+        } else {
+            mTrailersSection.setVisibility(View.GONE);
+        }
+
+        ArrayList<MovieReview> reviews = movie.getReviews();
+        if (reviews.size() != 0){
+            for (int i = 0; i < reviews.size(); i++){
+                if (i > 0){
+                    View line = new View(this);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
+                    params.setMargins(4, 16, 4, 16);
+                    line.setLayoutParams(params);
+                    line.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    mReviewsSection.addView(line);
+                }
+                MovieReview movieReview = reviews.get(i);
+                appendReview(movieReview);
+            }
+        } else {
+            mReviewsSection.setVisibility(View.GONE);
+        }
     }
+
+    public void appendTrailer(String trailerId){
+        LinearLayout linearLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams paramsLinearLayout = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+        ImageView imageTrailerTv = new ImageView(this);
+        imageTrailerTv.setImageResource(R.drawable.ic_play_arrow_white_24dp);
+        LinearLayout.LayoutParams paramsIv = new LinearLayout.LayoutParams(100,100);
+        imageTrailerTv.setLayoutParams(paramsIv);
+
+        TextView trailerTv = new TextView(this);
+        trailerTv.setText(trailerId);
+        trailerTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+        LinearLayout.LayoutParams paramsTv = new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+        trailerTv.setLayoutParams(paramsTv);
+
+        linearLayout.addView(imageTrailerTv);
+        linearLayout.addView(trailerTv);
+        mTrailersSection.addView(linearLayout);
+    }
+
+    public void appendReview(MovieReview movieReview){
+        TextView authorTv = new TextView(this);
+        TextView contentTv = new TextView(this);
+        authorTv.setText(movieReview.getAuthor());
+        contentTv.setText(movieReview.getContent());
+        authorTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+        contentTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+        authorTv.setAllCaps(true);
+
+        mReviewsSection.addView(authorTv);
+        mReviewsSection.addView(contentTv);
+    }
+
 }
+

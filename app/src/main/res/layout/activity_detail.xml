@@ -106,7 +106,10 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:text="@string/short_summary_description"
-                android:textStyle="bold" />
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:textStyle="bold"
+                android:textAllCaps="true"/>
 
             <TextView
                 android:id="@+id/detailActivity_synopsis"
@@ -114,6 +117,44 @@
                 android:textColor="@android:color/white"
                 android:layout_height="wrap_content"
                 tools:text="@string/test" />
+
+            <LinearLayout
+                android:id="@+id/detailActivity_trailerSection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trailers_section"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/detailActivity_reviewSection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reviews_section"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
+
+            </LinearLayout>
         </LinearLayout>
 
     </ScrollView>
@@ -143,6 +184,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_margin="16dp"/>
-
 
 </android.support.constraint.ConstraintLayout>
