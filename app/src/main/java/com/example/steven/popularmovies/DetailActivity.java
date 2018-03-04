@@ -1,12 +1,21 @@
 package com.example.steven.popularmovies;
 
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,6 +27,9 @@ import android.widget.Toast;
 
 import com.example.steven.popularmovies.Data.AsyncTaskCompleteListener;
 import com.example.steven.popularmovies.Data.MovieDetailsAsyncTask;
+import com.example.steven.popularmovies.Data.MovieReviewAdapter;
+import com.example.steven.popularmovies.Database.MoviesContract;
+import com.example.steven.popularmovies.Database.MoviesDbHelper;
 import com.example.steven.popularmovies.Objects.Movie;
 import com.example.steven.popularmovies.Objects.MovieReview;
 import com.example.steven.popularmovies.Utils.NetworkUtils;
@@ -32,6 +44,7 @@ public class DetailActivity extends AppCompatActivity {
     public static final String TAG = "DetailActivity";
 
     public int movieId;
+    public Movie mMovie;
 
     ProgressBar mProgressBar;
     ScrollView mScrollView;
@@ -47,10 +60,14 @@ public class DetailActivity extends AppCompatActivity {
     LinearLayout mTrailersSection;
     LinearLayout mReviewsSection;
 
-    private boolean isFavorite = false;
+    RecyclerView mRecyclerViewReviews;
+
+    SQLiteDatabase mDatabase;
 
     public static final String BASE_URL = "http://image.tmdb.org/t/p/";
     public static final String SIZE = "w185/";
+
+    boolean initialState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +87,9 @@ public class DetailActivity extends AppCompatActivity {
         mFab = findViewById(R.id.detailActivity_fab);
         mTrailersSection = findViewById(R.id.detailActivity_trailerSection);
         mReviewsSection = findViewById(R.id.detailActivity_reviewSection);
+        mRecyclerViewReviews = findViewById(R.id.detailActivity_recyclerViewReviews);
+
+        mDatabase = (new MoviesDbHelper(this)).getWritableDatabase();
 
         Intent intentThatStartedActivity = getIntent();
 
@@ -79,14 +99,29 @@ public class DetailActivity extends AppCompatActivity {
                 URL url = NetworkUtils.buildMovieDetailsUrl(movieId);
                 loadData(url);
             }
+        } else {
+            finish();
         }
-
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setFavoriteButton(!isFavorite);
+                setFavoriteButton(!mMovie.getIsFavorite());
             }
         });
+    }
+
+    /**
+     * Initialize the fab button to the correct image when the activity is created (=started)
+     * @param isFavorite boolean representing whether the movie is present in the favorite
+     *                  database or not
+     */
+    public void initializeFavoriteButton(boolean isFavorite){
+        if (isFavorite){
+            mFab.setImageResource(android.R.drawable.star_big_on);
+        } else {
+            mFab.setImageResource(android.R.drawable.star_big_off);
+        }
+        mMovie.setIsFavorite(isFavorite);
     }
 
     /**
@@ -97,19 +132,47 @@ public class DetailActivity extends AppCompatActivity {
     public void setFavoriteButton(boolean setFavorite){
         Toast mToast;
         if(setFavorite){
-            mFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(DetailActivity.this,R.color.colorFavorite)));
-            mFab.setImageResource(R.drawable.ic_star_border_black_24dp);
-            isFavorite = true;
-            mToast = Toast.makeText(this, getString(R.string.movie_added_to_favorites), Toast.LENGTH_SHORT);
+            mFab.setImageResource(android.R.drawable.star_big_on);
+            addMovieToFavorites();
+            mToast = Toast.makeText(this, getString(R.string.movie_added_to_favorites,
+                    mMovie.getTitle()), Toast.LENGTH_SHORT);
         } else {
-            mFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(DetailActivity.this,R.color.colorAccent)));
-            mFab.setImageResource(R.drawable.ic_star_border_white_24dp);
-            isFavorite = false;
-            mToast = Toast.makeText(this, getString(R.string.movie_removed_from_favorites), Toast.LENGTH_SHORT);
+            mFab.setImageResource(android.R.drawable.star_big_off);
+            removeMovieFromFavorites();
+            mToast = Toast.makeText(this, getString(R.string.movie_removed_from_favorites,
+                    mMovie.getTitle()), Toast.LENGTH_SHORT);
         }
         mToast.show();
     }
 
+    /**
+     * Adds the current movie to the favorites database, holding the users favorite movies
+     * This function also updates the corresponding boolean flag of the Movie object, i.e. sets the
+     * mIsFavorite flag to true
+     * @return long corresponding to the number of entries removed from the database
+     */
+    public long addMovieToFavorites(){
+        mMovie.setIsFavorite(true);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID, movieId);
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_IMAGE_PATH,
+                mMovie.getPosterPath());
+        return mDatabase.insert(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, null,
+                contentValues);
+    }
+
+    /**
+     * Removes the current movie from the favorites database, holding the users favorite movies
+     * This function also updates the corresponding boolean flag of the Movie object, i.e. sets the
+     * mIsFavorite flag to false
+     * @return long corresponding to the number of entries removed from the database
+     */
+    public long removeMovieFromFavorites(){
+        mMovie.setIsFavorite(false);
+        return mDatabase.delete(MoviesContract.FavoriteMoviesEntry.TABLE_NAME,
+                MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + "=" + movieId,
+                null);
+    }
 
     /**
      * starts the AsyncTask to fetch data for a certain movie
@@ -145,6 +208,7 @@ public class DetailActivity extends AppCompatActivity {
          */
         @Override
         public void onTaskComplete(Movie result) {
+            mMovie = result;
             bindDataToUI(result);
         }
 
@@ -245,23 +309,38 @@ public class DetailActivity extends AppCompatActivity {
             mTrailersSection.setVisibility(View.GONE);
         }
 
+//        ArrayList<MovieReview> reviews = movie.getReviews();
+//        if (reviews.size() != 0){
+//            for (int i = 0; i < reviews.size(); i++){
+//                if (i > 0){
+//                    View line = new View(this);
+//                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
+//                    params.setMargins(4, 16, 4, 16);
+//                    line.setLayoutParams(params);
+//                    line.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+//                    mReviewsSection.addView(line);
+//                }
+//                MovieReview movieReview = reviews.get(i);
+//                appendReview(movieReview);
+//            }
+//        } else {
+//            mReviewsSection.setVisibility(View.GONE);
+//        }
+
         ArrayList<MovieReview> reviews = movie.getReviews();
         if (reviews.size() != 0){
-            for (int i = 0; i < reviews.size(); i++){
-                if (i > 0){
-                    View line = new View(this);
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
-                    params.setMargins(4, 16, 4, 16);
-                    line.setLayoutParams(params);
-                    line.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
-                    mReviewsSection.addView(line);
-                }
-                MovieReview movieReview = reviews.get(i);
-                appendReview(movieReview);
-            }
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
+                    LinearLayoutManager.HORIZONTAL, false);
+            mRecyclerViewReviews.setLayoutManager(linearLayoutManager);
+            MovieReviewAdapter adapter = new MovieReviewAdapter(reviews);
+            mRecyclerViewReviews.setAdapter(adapter);
         } else {
             mReviewsSection.setVisibility(View.GONE);
         }
+
+        initialState = isMovieFavorite();
+        initializeFavoriteButton(initialState);
+
     }
 
     public void appendTrailer(String trailerId){
@@ -288,17 +367,40 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public void appendReview(MovieReview movieReview){
-        TextView authorTv = new TextView(this);
-        TextView contentTv = new TextView(this);
-        authorTv.setText(movieReview.getAuthor());
-        contentTv.setText(movieReview.getContent());
-        authorTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-        contentTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-        authorTv.setAllCaps(true);
-
-        mReviewsSection.addView(authorTv);
-        mReviewsSection.addView(contentTv);
+        View v = LayoutInflater.from(this).inflate(R.layout.movie_review_list_item, mReviewsSection);
+        TextView authorTv = v.findViewById(R.id.movieReviewListItem_author);
+        TextView contentTv = v.findViewById(R.id.movieReviewListItem_content);
+//        TextView authorTv = new TextView(this);
+//        TextView contentTv = new TextView(this);
+          authorTv.setText(movieReview.getAuthor());
+          contentTv.setText(movieReview.getContent());
+//        authorTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+//        contentTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+//        authorTv.setAllCaps(true);
+//
+//        mReviewsSection.addView(authorTv);
+//        mReviewsSection.addView(contentTv);
     }
 
+    public boolean isMovieFavorite(){
+        String[] columns = {MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID};
+        String selection = MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + "=" + movieId;
+        Cursor result = mDatabase.query(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, columns,
+                selection, null, null, null, null);
+        return result.getCount() > 0 ? true : false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home){
+            if (initialState != mMovie.getIsFavorite()){
+                setResult(RESULT_OK);
+            } else {
+                setResult(RESULT_CANCELED);
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
 

@@ -163,7 +163,7 @@ public class NetworkUtils {
                 // instantiate a new Movie with the parameters from the movie item
                 Movie movie = new Movie(id, -1, null, posterPath,
                         null, null, null, null, 0,
-                        null, null);
+                        null, null, false);
 
                 movieArray[i] = movie;
             }
@@ -271,7 +271,7 @@ public class NetworkUtils {
 
             // instantiate a new Movie with the parameters
             movie = new Movie(-1, voteAverage, title, posterPath, genres, overview, tagline,
-                    releaseDate, runTime, trailerIds, reviews);
+                    releaseDate, runTime, trailerIds, reviews, false);
 
         } catch (JSONException e) {
             e.printStackTrace();

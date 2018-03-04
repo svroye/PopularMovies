@@ -142,7 +142,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="16dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -153,6 +154,12 @@
                     android:layout_marginBottom="8dp"
                     android:textStyle="bold"
                     android:textAllCaps="true"/>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/detailActivity_recyclerViewReviews"
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_height="match_parent"/>
 
             </LinearLayout>
         </LinearLayout>
@@ -180,7 +187,7 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         app:backgroundTint="@color/colorAccent"
-        android:src="@drawable/ic_star_border_white_24dp"
+        android:src="@android:drawable/btn_star_big_off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_margin="16dp"/>

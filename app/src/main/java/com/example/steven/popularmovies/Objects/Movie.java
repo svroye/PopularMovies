@@ -26,6 +26,7 @@ public class Movie implements Parcelable {
     public int mRuntime;
     public ArrayList<String> mTrailerKeys;
     public ArrayList<MovieReview> mReviews;
+    public boolean mIsFavorite;
 
 
     /*
@@ -34,7 +35,7 @@ public class Movie implements Parcelable {
     public Movie(int id, double voteAverage, String title, String posterPath,
                  ArrayList<String> genres, String overview, String tagline,
                  String releaseDate, int runtime, ArrayList<String> trailers,
-                 ArrayList<MovieReview> reviews){
+                 ArrayList<MovieReview> reviews, boolean isFavorite){
         mID = id;
         mVoteAverage = voteAverage;
         mTitle = title;
@@ -46,6 +47,7 @@ public class Movie implements Parcelable {
         mRuntime = runtime;
         mTrailerKeys = trailers;
         mReviews = reviews;
+        mIsFavorite = isFavorite;
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -104,6 +106,14 @@ public class Movie implements Parcelable {
         return mReviews;
     }
 
+    public boolean getIsFavorite(){
+        return mIsFavorite;
+    }
+
+    public void setIsFavorite(boolean favorite){
+        mIsFavorite = favorite;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -121,6 +131,7 @@ public class Movie implements Parcelable {
         mRuntime = parcel.readInt();
         mTrailerKeys = (ArrayList<String>) parcel.readSerializable();
         mReviews = (ArrayList<MovieReview>) parcel.readSerializable();
+        mIsFavorite = parcel.readInt() == 1 ? true : false;
     }
 
     @Override
@@ -136,5 +147,6 @@ public class Movie implements Parcelable {
         parcel.writeInt(mRuntime);
         parcel.writeSerializable(mTrailerKeys);
         parcel.writeSerializable(mReviews);
+        parcel.writeInt(mIsFavorite ? 1 : 0);
     }
 }
