@@ -135,6 +135,12 @@
                     android:textStyle="bold"
                     android:textAllCaps="true"/>
 
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/detailActivity_recyclerViewTrailers"
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_height="match_parent"/>
+
             </LinearLayout>
 
             <LinearLayout

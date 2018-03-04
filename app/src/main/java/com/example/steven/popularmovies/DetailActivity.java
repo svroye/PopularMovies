@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 import com.example.steven.popularmovies.Data.AsyncTaskCompleteListener;
 import com.example.steven.popularmovies.Data.MovieDetailsAsyncTask;
 import com.example.steven.popularmovies.Data.MovieReviewAdapter;
+import com.example.steven.popularmovies.Data.MovieTrailerAdapter;
 import com.example.steven.popularmovies.Database.MoviesContract;
 import com.example.steven.popularmovies.Database.MoviesDbHelper;
 import com.example.steven.popularmovies.Objects.Movie;
@@ -39,7 +41,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity
+        implements MovieTrailerAdapter.MovieTrailerClickListener {
 
     public static final String TAG = "DetailActivity";
 
@@ -61,11 +64,14 @@ public class DetailActivity extends AppCompatActivity {
     LinearLayout mReviewsSection;
 
     RecyclerView mRecyclerViewReviews;
+    RecyclerView mRecyclerViewTrailers;
 
     SQLiteDatabase mDatabase;
 
     public static final String BASE_URL = "http://image.tmdb.org/t/p/";
     public static final String SIZE = "w185/";
+
+    public static final String YOUTUBE_START_URL = "https://www.youtube.com/watch";
 
     boolean initialState;
 
@@ -88,6 +94,7 @@ public class DetailActivity extends AppCompatActivity {
         mTrailersSection = findViewById(R.id.detailActivity_trailerSection);
         mReviewsSection = findViewById(R.id.detailActivity_reviewSection);
         mRecyclerViewReviews = findViewById(R.id.detailActivity_recyclerViewReviews);
+        mRecyclerViewTrailers = findViewById(R.id.detailActivity_recyclerViewTrailers);
 
         mDatabase = (new MoviesDbHelper(this)).getWritableDatabase();
 
@@ -200,6 +207,13 @@ public class DetailActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.GONE);
     }
 
+    @Override
+    public void onMovieTrailerClick(int clickedItemIndex) {
+        ArrayList<String> trailerIds = mMovie.getTrailerIds();
+        String trailer = trailerIds.get(clickedItemIndex);
+        openYoutube(trailer);
+    }
+
     public class MovieDetailCompleteListener implements AsyncTaskCompleteListener<Movie> {
 
         /**
@@ -299,15 +313,15 @@ public class DetailActivity extends AppCompatActivity {
             mSynopsisTv.setText(synopsis);
         }
 
-        ArrayList<String> trailers = movie.getTrailerIds();
-        if (trailers.size() != 0){
-            for ( int i = 0; i < trailers.size(); i++ ){
-                String trailerId = trailers.get(i);
-                appendTrailer(trailerId);
-            }
-        } else {
-            mTrailersSection.setVisibility(View.GONE);
-        }
+//        ArrayList<String> trailers = movie.getTrailerIds();
+//        if (trailers.size() != 0){
+//            for ( int i = 0; i < trailers.size(); i++ ){
+//                String trailerId = trailers.get(i);
+//                appendTrailer(trailerId);
+//            }
+//        } else {
+//            mTrailersSection.setVisibility(View.GONE);
+//        }
 
 //        ArrayList<MovieReview> reviews = movie.getReviews();
 //        if (reviews.size() != 0){
@@ -326,6 +340,17 @@ public class DetailActivity extends AppCompatActivity {
 //        } else {
 //            mReviewsSection.setVisibility(View.GONE);
 //        }
+
+        ArrayList<String> trailers = movie.getTrailerIds();
+        if (trailers.size() != 0){
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
+                    LinearLayoutManager.HORIZONTAL, false);
+            mRecyclerViewTrailers.setLayoutManager(linearLayoutManager);
+            MovieTrailerAdapter adapter = new MovieTrailerAdapter(this, trailers.size(), this);
+            mRecyclerViewTrailers.setAdapter(adapter);
+        } else {
+            mTrailersSection.setVisibility(View.GONE);
+        }
 
         ArrayList<MovieReview> reviews = movie.getReviews();
         if (reviews.size() != 0){
@@ -401,6 +426,17 @@ public class DetailActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void openYoutube(String movieTrailerId){
+        Intent intentToStartYoutube = new Intent(Intent.ACTION_VIEW);
+        Uri uri = Uri.parse(YOUTUBE_START_URL).buildUpon()
+                .appendQueryParameter("v", movieTrailerId)
+                .build();
+        intentToStartYoutube.setData(uri);
+        if (intentToStartYoutube.resolveActivity(getPackageManager()) != null) {
+            startActivity(intentToStartYoutube);
+        }
     }
 }
 

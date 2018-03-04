@@ -23,6 +23,8 @@
     <string name="trailers_section" translatable="true">Trailers</string>
     <string name="reviews_section" translatable="true">Reviews</string>
 
+    <string name="trailer_numbering" translatable="true">Trailer %d</string>
+
     <!-- label used for the runtime of a movie -->
     <string name="runtime" translatable="true">%d min</string>
 

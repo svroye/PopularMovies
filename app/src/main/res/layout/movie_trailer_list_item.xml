@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:paddingRight="16dp"
+    android:orientation="horizontal"
+    android:layout_height="50dp">
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/movieTrailerListItem_playIcon"
+        android:src="@drawable/ic_play_arrow_white_24dp"
+        android:textColor="@android:color/white"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/movieTrailerListItem_trailerName"
+        android:textColor="@android:color/white"
+        tools:text="Trailer 1"
+        android:gravity="center_vertical"/>
+
+</LinearLayout>
