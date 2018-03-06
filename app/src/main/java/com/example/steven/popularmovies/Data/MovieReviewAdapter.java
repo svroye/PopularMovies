@@ -19,9 +19,16 @@ import java.util.ArrayList;
 public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.MovieReviewViewHolder> {
 
     ArrayList<MovieReview> mData;
+    MovieReviewClickItemListener mMovieReviewClickItemListener;
 
-    public MovieReviewAdapter(ArrayList<MovieReview> reviews){
+    public MovieReviewAdapter(ArrayList<MovieReview> reviews, MovieReviewClickItemListener
+            movieReviewClickItemListener){
         mData = reviews;
+        mMovieReviewClickItemListener = movieReviewClickItemListener;
+    }
+
+    public interface MovieReviewClickItemListener {
+        void onListItemClick(int clickedItemIndex);
     }
 
     @Override
@@ -47,7 +54,8 @@ public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.
         return mData.size();
     }
 
-    public class MovieReviewViewHolder extends RecyclerView.ViewHolder {
+    public class MovieReviewViewHolder extends RecyclerView.ViewHolder
+                    implements View.OnClickListener{
 
         TextView mAuthorTv;
         TextView mContentTv;
@@ -56,11 +64,17 @@ public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.
             super(itemView);
             mAuthorTv = itemView.findViewById(R.id.movieReviewListItem_author);
             mContentTv = itemView.findViewById(R.id.movieReviewListItem_content);
+            itemView.setOnClickListener(this);
         }
 
         public void bind(MovieReview review){
             mAuthorTv.setText(review.getAuthor());
             mContentTv.setText(review.getContent());
+        }
+
+        @Override
+        public void onClick(View view) {
+            mMovieReviewClickItemListener.onListItemClick(getAdapterPosition());
         }
     }
 }

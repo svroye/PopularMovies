@@ -42,7 +42,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class DetailActivity extends AppCompatActivity
-        implements MovieTrailerAdapter.MovieTrailerClickListener {
+        implements MovieTrailerAdapter.MovieTrailerClickListener,
+        MovieReviewAdapter.MovieReviewClickItemListener{
 
     public static final String TAG = "DetailActivity";
 
@@ -67,9 +68,6 @@ public class DetailActivity extends AppCompatActivity
     RecyclerView mRecyclerViewTrailers;
 
     SQLiteDatabase mDatabase;
-
-    public static final String BASE_URL = "http://image.tmdb.org/t/p/";
-    public static final String SIZE = "w185/";
 
     public static final String YOUTUBE_START_URL = "https://www.youtube.com/watch";
 
@@ -214,6 +212,19 @@ public class DetailActivity extends AppCompatActivity
         openYoutube(trailer);
     }
 
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+       Log.d(TAG, "POSTITION: " + clickedItemIndex);
+       ArrayList<MovieReview> reviews = mMovie.getReviews();
+       MovieReview review = reviews.get(clickedItemIndex);
+       Intent intentToReviewDetails = new Intent(DetailActivity.this,
+               ReviewDetailsScreen.class);
+       intentToReviewDetails.putExtra(getString(R.string.intent_extra_review), review);
+       intentToReviewDetails.putExtra(getString(R.string.intent_extra_movie),
+               mMovie);
+       startActivity(intentToReviewDetails);
+    }
+
     public class MovieDetailCompleteListener implements AsyncTaskCompleteListener<Movie> {
 
         /**
@@ -286,7 +297,7 @@ public class DetailActivity extends AppCompatActivity
 
         String posterPath = movie.getPosterPath();
         if (posterPath != null){
-            String imagePath = BASE_URL + SIZE + posterPath;
+            String imagePath = NetworkUtils.BASE_URL_POSTER + NetworkUtils.SIZE + posterPath;
             Picasso.with(this)
                     .load(imagePath)
                     .fit()
@@ -313,34 +324,6 @@ public class DetailActivity extends AppCompatActivity
             mSynopsisTv.setText(synopsis);
         }
 
-//        ArrayList<String> trailers = movie.getTrailerIds();
-//        if (trailers.size() != 0){
-//            for ( int i = 0; i < trailers.size(); i++ ){
-//                String trailerId = trailers.get(i);
-//                appendTrailer(trailerId);
-//            }
-//        } else {
-//            mTrailersSection.setVisibility(View.GONE);
-//        }
-
-//        ArrayList<MovieReview> reviews = movie.getReviews();
-//        if (reviews.size() != 0){
-//            for (int i = 0; i < reviews.size(); i++){
-//                if (i > 0){
-//                    View line = new View(this);
-//                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
-//                    params.setMargins(4, 16, 4, 16);
-//                    line.setLayoutParams(params);
-//                    line.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
-//                    mReviewsSection.addView(line);
-//                }
-//                MovieReview movieReview = reviews.get(i);
-//                appendReview(movieReview);
-//            }
-//        } else {
-//            mReviewsSection.setVisibility(View.GONE);
-//        }
-
         ArrayList<String> trailers = movie.getTrailerIds();
         if (trailers.size() != 0){
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
@@ -357,7 +340,7 @@ public class DetailActivity extends AppCompatActivity
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
                     LinearLayoutManager.HORIZONTAL, false);
             mRecyclerViewReviews.setLayoutManager(linearLayoutManager);
-            MovieReviewAdapter adapter = new MovieReviewAdapter(reviews);
+            MovieReviewAdapter adapter = new MovieReviewAdapter(reviews,this );
             mRecyclerViewReviews.setAdapter(adapter);
         } else {
             mReviewsSection.setVisibility(View.GONE);
@@ -366,45 +349,6 @@ public class DetailActivity extends AppCompatActivity
         initialState = isMovieFavorite();
         initializeFavoriteButton(initialState);
 
-    }
-
-    public void appendTrailer(String trailerId){
-        LinearLayout linearLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams paramsLinearLayout = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-
-        ImageView imageTrailerTv = new ImageView(this);
-        imageTrailerTv.setImageResource(R.drawable.ic_play_arrow_white_24dp);
-        LinearLayout.LayoutParams paramsIv = new LinearLayout.LayoutParams(100,100);
-        imageTrailerTv.setLayoutParams(paramsIv);
-
-        TextView trailerTv = new TextView(this);
-        trailerTv.setText(trailerId);
-        trailerTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-        LinearLayout.LayoutParams paramsTv = new LinearLayout.LayoutParams(0,
-                ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-        trailerTv.setLayoutParams(paramsTv);
-
-        linearLayout.addView(imageTrailerTv);
-        linearLayout.addView(trailerTv);
-        mTrailersSection.addView(linearLayout);
-    }
-
-    public void appendReview(MovieReview movieReview){
-        View v = LayoutInflater.from(this).inflate(R.layout.movie_review_list_item, mReviewsSection);
-        TextView authorTv = v.findViewById(R.id.movieReviewListItem_author);
-        TextView contentTv = v.findViewById(R.id.movieReviewListItem_content);
-//        TextView authorTv = new TextView(this);
-//        TextView contentTv = new TextView(this);
-          authorTv.setText(movieReview.getAuthor());
-          contentTv.setText(movieReview.getContent());
-//        authorTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-//        contentTv.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-//        authorTv.setAllCaps(true);
-//
-//        mReviewsSection.addView(authorTv);
-//        mReviewsSection.addView(contentTv);
     }
 
     public boolean isMovieFavorite(){

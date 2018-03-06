@@ -61,7 +61,15 @@
         activity should refresh or not-->
     <string name="main_activity_should_refresh" translatable="false">refresh_main_activity</string>
 
-    <string name="test" >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras volutpat
+    <!-- string used as key in the intent between movie detail and review detail screen for passing
+    the movie review-->
+    <string name="intent_extra_review" translatable="false">review</string>
+
+    <!-- string used as key in the intent between movie detail and review detail screen for passing
+    the movie-->
+    <string name="intent_extra_movie" translatable="false">movie</string>
+
+    <string name="test">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras volutpat
         consectetur enim, nec mattis lorem dictum vitae. Vestibulum eleifend, mi ut ornare lacinia,
         elit nulla consectetur ipsum, tincidunt luctus lectus sapien non sem. Praesent congue
         ullamcorper tempus. Aenean vehicula eget tortor sit amet aliquet. Praesent felis libero,

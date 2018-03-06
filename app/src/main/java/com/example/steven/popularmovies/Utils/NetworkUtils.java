@@ -42,6 +42,9 @@ public class NetworkUtils {
 
     public static final String TAG = "NetworkUtils";
 
+    public static final String BASE_URL_POSTER = "http://image.tmdb.org/t/p/";
+    public static final String SIZE = "w185/";
+
     /**
      * build the URL that points to the popular movies end point
      * @return URL

@@ -50,6 +50,22 @@ public class Movie implements Parcelable {
         mIsFavorite = isFavorite;
     }
 
+
+    protected Movie(Parcel in) {
+        mID = in.readInt();
+        mVoteAverage = in.readDouble();
+        mTitle = in.readString();
+        mPosterPath = in.readString();
+        mGenres = in.createStringArrayList();
+        mOverview = in.readString();
+        mTagline = in.readString();
+        mReleaseDate = in.readString();
+        mRuntime = in.readInt();
+        mTrailerKeys = in.createStringArrayList();
+        mReviews = in.createTypedArrayList(MovieReview.CREATOR);
+        mIsFavorite = in.readByte() != 0;
+    }
+
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         @Override
         public Movie createFromParcel(Parcel in) {
@@ -119,34 +135,19 @@ public class Movie implements Parcelable {
         return 0;
     }
 
-    private Movie(Parcel parcel){
-        mID = parcel.readInt();
-        mVoteAverage = parcel.readDouble();
-        mTitle = parcel.readString();
-        mPosterPath = parcel.readString();
-        mGenres = (ArrayList<String>) parcel.readSerializable();
-        mOverview = parcel.readString();
-        mTagline = parcel.readString();
-        mReleaseDate = parcel.readString();
-        mRuntime = parcel.readInt();
-        mTrailerKeys = (ArrayList<String>) parcel.readSerializable();
-        mReviews = (ArrayList<MovieReview>) parcel.readSerializable();
-        mIsFavorite = parcel.readInt() == 1 ? true : false;
-    }
-
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(mID);
         parcel.writeDouble(mVoteAverage);
         parcel.writeString(mTitle);
         parcel.writeString(mPosterPath);
-        parcel.writeSerializable(mGenres);
+        parcel.writeStringList(mGenres);
         parcel.writeString(mOverview);
         parcel.writeString(mTagline);
         parcel.writeString(mReleaseDate);
         parcel.writeInt(mRuntime);
-        parcel.writeSerializable(mTrailerKeys);
-        parcel.writeSerializable(mReviews);
-        parcel.writeInt(mIsFavorite ? 1 : 0);
+        parcel.writeStringList(mTrailerKeys);
+        parcel.writeTypedList(mReviews);
+        parcel.writeByte((byte) (mIsFavorite ? 1 : 0));
     }
 }
