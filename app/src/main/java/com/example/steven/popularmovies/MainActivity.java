@@ -1,5 +1,6 @@
 package com.example.steven.popularmovies;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -81,7 +82,6 @@ public class MainActivity extends AppCompatActivity
         setMainTitle(preferredOrdering);
 
         loadData(preferredOrdering);
-        Log.d(TAG, "Calling the onCreate");
     }
 
     public void loadData(String preferredOrdering){
@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity
                 new MovieListAsyncTask(this, new MovieListCompleteListener()).execute(requestUrl);
             } else {
                 // load data from DB for the favorite movies
-                Log.d(TAG, "Reading data from the database");
                 Movie[] favorites = readDataFromDatabase();
                 mAdapter.setData(favorites);
             }
@@ -125,9 +124,9 @@ public class MainActivity extends AppCompatActivity
 
     public Movie[] readDataFromDatabase(){
         // query the favorites from the database
-        Cursor queryResult =  mDatabase.query(MoviesContract.FavoriteMoviesEntry.TABLE_NAME,
-                null, null, null, null, null,
-                MoviesContract.FavoriteMoviesEntry._ID);
+        ContentResolver resolver = getContentResolver();
+        Cursor queryResult = resolver.query(MoviesContract.FavoriteMoviesEntry.CONTENT_URI, null,
+                null, null, MoviesContract.FavoriteMoviesEntry._ID);
         // check whether there are results from the query
         if( queryResult.getCount() == 0) {
             // no result, show message to the user
@@ -284,7 +283,6 @@ public class MainActivity extends AppCompatActivity
          */
         @Override
         public void showLoadingIndicator() {
-            Log.d(TAG, "Showing the loading indicator");
             mRecyclerView.setVisibility(View.GONE);
             mProgressBar.setVisibility(View.VISIBLE);
             mNoInternetErrorTv.setVisibility(View.GONE);

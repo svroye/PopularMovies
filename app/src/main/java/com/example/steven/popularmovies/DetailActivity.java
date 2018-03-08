@@ -1,6 +1,8 @@
 package com.example.steven.popularmovies;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -49,6 +51,7 @@ public class DetailActivity extends AppCompatActivity
 
     public int movieId;
     public Movie mMovie;
+    public int mDatabaseId;
 
     ProgressBar mProgressBar;
     ScrollView mScrollView;
@@ -135,35 +138,44 @@ public class DetailActivity extends AppCompatActivity
      * @param setFavorite boolean representing whether the button needs to become favorite or not
      */
     public void setFavoriteButton(boolean setFavorite){
-        Toast mToast;
+        Toast mToast = null;
         if(setFavorite){
             mFab.setImageResource(android.R.drawable.star_big_on);
-            addMovieToFavorites();
-            mToast = Toast.makeText(this, getString(R.string.movie_added_to_favorites,
-                    mMovie.getTitle()), Toast.LENGTH_SHORT);
+            Uri returnUri = addMovieToFavorites();
+            if (returnUri != null) {
+                mToast = Toast.makeText(this, getString(R.string.movie_added_to_favorites,
+                        mMovie.getTitle()),
+                        Toast.LENGTH_SHORT);
+            }
         } else {
             mFab.setImageResource(android.R.drawable.star_big_off);
-            removeMovieFromFavorites();
-            mToast = Toast.makeText(this, getString(R.string.movie_removed_from_favorites,
-                    mMovie.getTitle()), Toast.LENGTH_SHORT);
+            int rowsRemoved = removeMovieFromFavorites();
+            if (rowsRemoved > 0) {
+                mToast = Toast.makeText(this, getString(R.string.movie_removed_from_favorites,
+                        mMovie.getTitle()), Toast.LENGTH_SHORT);
+            }
         }
-        mToast.show();
+        if (mToast != null) {
+            mToast.show();
+        }
     }
 
     /**
      * Adds the current movie to the favorites database, holding the users favorite movies
      * This function also updates the corresponding boolean flag of the Movie object, i.e. sets the
      * mIsFavorite flag to true
-     * @return long corresponding to the number of entries removed from the database
+     * @return uri pointing to the inserted row
      */
-    public long addMovieToFavorites(){
+    public Uri addMovieToFavorites(){
         mMovie.setIsFavorite(true);
+
         ContentValues contentValues = new ContentValues();
         contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID, movieId);
         contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_IMAGE_PATH,
                 mMovie.getPosterPath());
-        return mDatabase.insert(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, null,
-                contentValues);
+        ContentResolver resolver = getContentResolver();
+        return resolver.insert(MoviesContract.FavoriteMoviesEntry.CONTENT_URI, contentValues);
+
     }
 
     /**
@@ -172,11 +184,11 @@ public class DetailActivity extends AppCompatActivity
      * mIsFavorite flag to false
      * @return long corresponding to the number of entries removed from the database
      */
-    public long removeMovieFromFavorites(){
+    public int removeMovieFromFavorites(){
         mMovie.setIsFavorite(false);
-        return mDatabase.delete(MoviesContract.FavoriteMoviesEntry.TABLE_NAME,
-                MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + "=" + movieId,
-                null);
+        ContentResolver resolver = getContentResolver();
+        Uri uri = ContentUris.withAppendedId(MoviesContract.FavoriteMoviesEntry.CONTENT_URI,movieId);
+        return resolver.delete(uri, null, null );
     }
 
     /**
@@ -214,7 +226,6 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     public void onListItemClick(int clickedItemIndex) {
-       Log.d(TAG, "POSTITION: " + clickedItemIndex);
        ArrayList<MovieReview> reviews = mMovie.getReviews();
        MovieReview review = reviews.get(clickedItemIndex);
        Intent intentToReviewDetails = new Intent(DetailActivity.this,
@@ -352,10 +363,9 @@ public class DetailActivity extends AppCompatActivity
     }
 
     public boolean isMovieFavorite(){
-        String[] columns = {MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID};
-        String selection = MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + "=" + movieId;
-        Cursor result = mDatabase.query(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, columns,
-                selection, null, null, null, null);
+        ContentResolver resolver = getContentResolver();
+        Uri uri = ContentUris.withAppendedId(MoviesContract.FavoriteMoviesEntry.CONTENT_URI, movieId);
+        Cursor result = resolver.query(uri, null, null, null, null);
         return result.getCount() > 0 ? true : false;
     }
 

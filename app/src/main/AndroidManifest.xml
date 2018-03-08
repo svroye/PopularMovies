@@ -33,6 +33,13 @@
             android:name=".ReviewDetailsScreen"
             android:parentActivityName=".DetailActivity">
         </activity>
+
+        <provider
+            android:authorities="com.example.steven.popularmovies"
+            android:name="com.example.steven.popularmovies.Database.FavoritemovieContentProvider"
+            android:exported="false">
+        </provider>
+
     </application>
 
 </manifest>
