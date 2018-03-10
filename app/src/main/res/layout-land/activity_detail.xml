@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detailActivity_parentLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context="com.example.steven.popularmovies.DetailActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/detailActivity_moviePoster"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            tools:src="@mipmap/ic_launcher"
+            android:contentDescription="@string/contentDescription_poster"/>
+
+        <ScrollView
+            android:id="@+id/detailActivity_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/detailActivity_Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:layout_marginBottom="8dp"
+                    android:textAllCaps="true"
+                    android:textSize="24sp"
+                    tools:text="Title of the movie" />
+
+                <TextView
+                    android:id="@+id/detailActivity_Tagline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:layout_marginBottom="4dp"
+                    android:textSize="16sp"
+                    tools:text="Tagline of the movie" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/detailActivity_runtime"
+                        android:layout_width="0dp"
+                        android:textColor="@android:color/white"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        tools:text="91 min" />
+
+                    <TextView
+                        android:id="@+id/detailActivity_releaseDate"
+                        android:layout_width="0dp"
+                        android:textColor="@android:color/white"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAlignment="center"
+                        tools:text="25/05/2017" />
+
+                    <TextView
+                        android:id="@+id/detailActivity_voteAverage"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/white"
+                        android:layout_gravity="end"
+                        android:layout_weight="1"
+                        android:textAlignment="textEnd"
+                        tools:text="9/10" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:text="@string/short_summary_description"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
+
+                <TextView
+                    android:id="@+id/detailActivity_synopsis"
+                    android:layout_width="match_parent"
+                    android:textColor="@android:color/white"
+                    android:layout_height="wrap_content"
+                    tools:text="@string/test" />
+
+                <LinearLayout
+                    android:id="@+id/detailActivity_trailerSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trailers_section"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="8dp"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/detailActivity_recyclerViewTrailers"
+                        android:layout_width="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_height="match_parent"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/detailActivity_reviewSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/reviews_section"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="8dp"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/detailActivity_recyclerViewReviews"
+                        android:layout_width="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_height="match_parent"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"/>
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+
+    <ProgressBar
+        android:visibility="gone"
+        android:id="@+id/detailActivity_ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:visibility="gone"
+        android:textAlignment="center"
+        android:padding="8dp"
+        android:id="@+id/detailActivity_noInternetOrErrorTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="@string/no_internet_message"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/detailActivity_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:backgroundTint="@color/colorAccent"
+        android:src="@android:drawable/btn_star_big_off"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_margin="16dp"/>
+
+</android.support.constraint.ConstraintLayout>

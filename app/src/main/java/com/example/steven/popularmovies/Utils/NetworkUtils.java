@@ -4,9 +4,11 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.util.Log;
 
 import com.example.steven.popularmovies.BuildConfig;
 import com.example.steven.popularmovies.Objects.Movie;
+import com.example.steven.popularmovies.Objects.MovieReview;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,9 +36,18 @@ public class NetworkUtils {
     public static final String API_KEY_PARAMETER = "api_key";
     // PLEASE PROVIDE YOUR OWN API KEY HERE
     public static final String API_KEY_VALUE = BuildConfig.API_KEY;
+    public static final String APPEND_TO_RESPONSE_KEY = "append_to_response";
+    public static final String VIDEOS_VALUE = "videos";
+    public static final String REVIEWS_VALUE = "reviews";
 
-    /*
-    build the URL that points to the popular movies end point
+    public static final String TAG = "NetworkUtils";
+
+    public static final String BASE_URL_POSTER = "http://image.tmdb.org/t/p/";
+    public static final String SIZE = "w185/";
+
+    /**
+     * build the URL that points to the popular movies end point
+     * @return URL
      */
     public static URL buildPopularMoviesUrl() {
         // get the start URL
@@ -56,8 +67,9 @@ public class NetworkUtils {
         return url;
     }
 
-    /*
-    build the URL that points to the top rated end point
+    /**
+     * build the URL that points to the top rated end point
+     * @return URL
      */
     public static URL buildTopRatedUrl() {
         // get the start URL
@@ -77,9 +89,7 @@ public class NetworkUtils {
         return url;
     }
 
-    /*
-    build the URL that points to the top rated end point
-     */
+
     public static URL buildMovieDetailsUrl(int id) {
         // get the start URL
         String startUrl = BASE_URL + MOVIE_DETAILS_END_POINT + id;
@@ -87,6 +97,7 @@ public class NetworkUtils {
         // append the key to the url
         Uri uri = Uri.parse(startUrl).buildUpon()
                 .appendQueryParameter(API_KEY_PARAMETER, API_KEY_VALUE)
+                .appendQueryParameter(APPEND_TO_RESPONSE_KEY, VIDEOS_VALUE + "," + REVIEWS_VALUE)
                 .build();
 
         try {
@@ -94,7 +105,7 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
+        Log.d(TAG, url.toString());
         return url;
     }
 
@@ -154,7 +165,8 @@ public class NetworkUtils {
 
                 // instantiate a new Movie with the parameters from the movie item
                 Movie movie = new Movie(id, -1, null, posterPath,
-                        null, null, null, null, 0);
+                        null, null, null, null, 0,
+                        null, null, false);
 
                 movieArray[i] = movie;
             }
@@ -182,6 +194,8 @@ public class NetworkUtils {
         String tagline = null;
         String title = null;
         double voteAverage = 0.0;
+        ArrayList<String> trailerIds = new ArrayList<>();
+        ArrayList<MovieReview> reviews = new ArrayList<>();
 
         Movie movie = null;
 
@@ -189,11 +203,11 @@ public class NetworkUtils {
             jsonResult = new JSONObject(response);
 
             if (jsonResult.has("genres")){
-                JSONArray genresArray = jsonResult.getJSONArray("genres");
+                JSONArray genresArray = jsonResult.optJSONArray("genres");
                 for(int j = 0; j < genresArray.length(); j++){
-                    JSONObject currentGenre = genresArray.getJSONObject(j);
+                    JSONObject currentGenre = genresArray.optJSONObject(j);
                     if (currentGenre.has("name")){
-                        genres.add(currentGenre.getString("name"));
+                        genres.add(currentGenre.optString("name"));
                     }
                 }
             }
@@ -222,12 +236,45 @@ public class NetworkUtils {
             }
 
             if (jsonResult.has("vote_average")){
-                voteAverage = jsonResult.getDouble("vote_average");
+                voteAverage = jsonResult.optDouble("vote_average");
+            }
+
+            if (jsonResult.has("videos")){
+                JSONObject videos = jsonResult.optJSONObject("videos");
+                if (videos.has("results")){
+                    JSONArray results = videos.optJSONArray("results");
+                    for (int k = 0; k < results.length(); k++){
+                        JSONObject trailer = results.optJSONObject(k);
+                        if (trailer.has("key")){
+                            String trailerKey = trailer.optString("key");
+                            trailerIds.add(trailerKey);
+                        }
+                    }
+                }
+            }
+
+            if (jsonResult.has("reviews")){
+                JSONObject reviewsCollection = jsonResult.optJSONObject("reviews");
+                if (reviewsCollection.has("results")){
+                    JSONArray reviewResults = reviewsCollection.optJSONArray("results");
+                    for (int m = 0; m < reviewResults.length(); m++){
+                        JSONObject review = reviewResults.getJSONObject(m);
+                        String content = null;
+                        String author = null;
+                        if (review.has("content")){
+                            content = review.optString("content");
+                        }
+                        if (review.has("author")){
+                            author = review.optString("author");
+                        }
+                        reviews.add(new MovieReview(content, author));
+                    }
+                }
             }
 
             // instantiate a new Movie with the parameters
             movie = new Movie(-1, voteAverage, title, posterPath, genres, overview, tagline,
-                    releaseDate, runTime);
+                    releaseDate, runTime, trailerIds, reviews, false);
 
         } catch (JSONException e) {
             e.printStackTrace();

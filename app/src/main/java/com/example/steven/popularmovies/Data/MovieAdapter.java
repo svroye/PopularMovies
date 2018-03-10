@@ -45,7 +45,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         View view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
         return new MovieViewHolder(view);
-
     }
 
     @Override

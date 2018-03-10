@@ -24,6 +24,9 @@ public class Movie implements Parcelable {
     public String mTagline;
     public String mReleaseDate;
     public int mRuntime;
+    public ArrayList<String> mTrailerKeys;
+    public ArrayList<MovieReview> mReviews;
+    public boolean mIsFavorite;
 
 
     /*
@@ -31,7 +34,8 @@ public class Movie implements Parcelable {
      */
     public Movie(int id, double voteAverage, String title, String posterPath,
                  ArrayList<String> genres, String overview, String tagline,
-                 String releaseDate, int runtime){
+                 String releaseDate, int runtime, ArrayList<String> trailers,
+                 ArrayList<MovieReview> reviews, boolean isFavorite){
         mID = id;
         mVoteAverage = voteAverage;
         mTitle = title;
@@ -41,6 +45,25 @@ public class Movie implements Parcelable {
         mTagline = tagline;
         mReleaseDate = releaseDate;
         mRuntime = runtime;
+        mTrailerKeys = trailers;
+        mReviews = reviews;
+        mIsFavorite = isFavorite;
+    }
+
+
+    protected Movie(Parcel in) {
+        mID = in.readInt();
+        mVoteAverage = in.readDouble();
+        mTitle = in.readString();
+        mPosterPath = in.readString();
+        mGenres = in.createStringArrayList();
+        mOverview = in.readString();
+        mTagline = in.readString();
+        mReleaseDate = in.readString();
+        mRuntime = in.readInt();
+        mTrailerKeys = in.createStringArrayList();
+        mReviews = in.createTypedArrayList(MovieReview.CREATOR);
+        mIsFavorite = in.readByte() != 0;
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -91,21 +114,25 @@ public class Movie implements Parcelable {
         return mRuntime;
     }
 
+    public ArrayList<String> getTrailerIds() {
+        return mTrailerKeys;
+    }
+
+    public ArrayList<MovieReview> getReviews() {
+        return mReviews;
+    }
+
+    public boolean getIsFavorite(){
+        return mIsFavorite;
+    }
+
+    public void setIsFavorite(boolean favorite){
+        mIsFavorite = favorite;
+    }
+
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    private Movie(Parcel parcel){
-        mID = parcel.readInt();
-        mVoteAverage = parcel.readDouble();
-        mTitle = parcel.readString();
-        mPosterPath = parcel.readString();
-        mGenres = (ArrayList<String>) parcel.readSerializable();
-        mOverview = parcel.readString();
-        mTagline = parcel.readString();
-        mReleaseDate = parcel.readString();
-        mRuntime = parcel.readInt();
     }
 
     @Override
@@ -114,10 +141,13 @@ public class Movie implements Parcelable {
         parcel.writeDouble(mVoteAverage);
         parcel.writeString(mTitle);
         parcel.writeString(mPosterPath);
-        parcel.writeSerializable(mGenres);
+        parcel.writeStringList(mGenres);
         parcel.writeString(mOverview);
         parcel.writeString(mTagline);
         parcel.writeString(mReleaseDate);
         parcel.writeInt(mRuntime);
+        parcel.writeStringList(mTrailerKeys);
+        parcel.writeTypedList(mReviews);
+        parcel.writeByte((byte) (mIsFavorite ? 1 : 0));
     }
 }

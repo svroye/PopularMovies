@@ -6,23 +6,81 @@
     <!-- Settings strings -->
     <string name="main_menu_settings_item" translatable="true">Settings</string>
 
+    <!-- labels showing on the preference screen, including the title and the options -->
     <string name="pref_order_by_label" translatable="true">Order by</string>
     <string name="pref_order_by_most_popular_label" translatable="true">Most popular</string>
     <string name="pref_order_by_top_rated_label" translatable="true">Top rated</string>
+    <string name="pref_order_by_favorite_label" translatable="true">Favorites</string>
 
+    <!-- key and the values for storing the preferences-->
     <string name="pref_order_by_key" translatable="false">pref_order_by</string>
     <string name="pref_order_by_most_popular_value" translatable="false">most-popular</string>
     <string name="pref_order_by_top_rated_value" translatable="false">top_rated</string>
+    <string name="pref_order_by_favorite_value" translatable="false">favorite</string>
 
+    <!-- Labels used in the movie details screen-->
     <string name="short_summary_description" translatable="true">Synopsis</string>
+    <string name="trailers_section" translatable="true">Trailers</string>
+    <string name="reviews_section" translatable="true">Reviews</string>
 
+    <string name="trailer_numbering" translatable="true">Trailer %d</string>
+
+    <!-- label used for the runtime of a movie -->
     <string name="runtime" translatable="true">%d min</string>
+
+    <!-- label for the rating of a movie-->
     <string name="rating" translatable="true">%.1f/10</string>
+
+    <!-- text shown when the user has no active internet connection -->
     <string name="no_internet_message" translatable="true">Your internet connection appears to be
         offline. Please try again after reconnecting to the internet.</string>
+
+    <!-- content description of the movie poster for accessibility -->
     <string name="contentDescription_poster">Movie poster</string>
+
+    <!-- text shown when an error occurred with retrieving the data -->
     <string name="error_message" translatable="true">An error occurred with retrieving the data.
         Please try again later</string>
-    <string name="test" >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras volutpat consectetur enim, nec mattis lorem dictum vitae. Vestibulum eleifend, mi ut ornare lacinia, elit nulla consectetur ipsum, tincidunt luctus lectus sapien non sem. Praesent congue ullamcorper tempus. Aenean vehicula eget tortor sit amet aliquet. Praesent felis libero, sagittis ac nibh sed, aliquet elementum arcu. Quisque purus ipsum, vestibulum id maximus a, consequat commodo velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris aliquet quam sed nulla tristique, ac pellentesque ligula bibendum. Proin elementum convallis erat, quis faucibus nulla malesuada a. Pellentesque tincidunt orci eget elit congue, nec volutpat est suscipit. Vivamus laoreet felis eros, ut commodo nibh ultricies et. Mauris eget risus mollis, imperdiet nisl ac, efficitur mi. Sed vulputate tempus orci, ultricies semper turpis aliquet at. Nulla finibus ligula at orci cursus, ac accumsan nisi lacinia. In eget justo euismod nisl congue posuere</string>
+
+    <!-- message shown in a toast message when the favorite button is clicked and the movie is
+    added to the favorites.-->
+    <string name="movie_added_to_favorites">%s added to your favorites!</string>
+
+    <!-- message shown in a toast message when the favorite button is clicked again and the movie is
+    removed from the favorites.-->
+    <string name="movie_removed_from_favorites">%s removed from your favorites!</string>
+
+    <!-- message shown on the main screen when the user has no favorites and the favorite
+    preference is selected-->
+    <string name="no_favorites_message">You did not add favorites yet! Please select a different
+        ordering method in the settings and add favorites by clicking on a movie poster in the grid
+        and then on the star button in the right bottom corner of the screen.</string>
+
+    <!-- string used in the intent when going from the detail activity back to the main activity.
+        The value corresponding with this string is a boolean representing whether the main
+        activity should refresh or not-->
+    <string name="main_activity_should_refresh" translatable="false">refresh_main_activity</string>
+
+    <!-- string used as key in the intent between movie detail and review detail screen for passing
+    the movie review-->
+    <string name="intent_extra_review" translatable="false">review</string>
+
+    <!-- string used as key in the intent between movie detail and review detail screen for passing
+    the movie-->
+    <string name="intent_extra_movie" translatable="false">movie</string>
+
+    <string name="test">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras volutpat
+        consectetur enim, nec mattis lorem dictum vitae. Vestibulum eleifend, mi ut ornare lacinia,
+        elit nulla consectetur ipsum, tincidunt luctus lectus sapien non sem. Praesent congue
+        ullamcorper tempus. Aenean vehicula eget tortor sit amet aliquet. Praesent felis libero,
+        sagittis ac nibh sed, aliquet elementum arcu. Quisque purus ipsum, vestibulum id maximus a,
+        consequat commodo velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
+        ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris aliquet
+        quam sed nulla tristique, ac pellentesque ligula bibendum. Proin elementum convallis erat,
+        quis faucibus nulla malesuada a. Pellentesque tincidunt orci eget elit congue, nec volutpat
+        est suscipit. Vivamus laoreet felis eros, ut commodo nibh ultricies et. Mauris eget risus
+        mollis, imperdiet nisl ac, efficitur mi. Sed vulputate tempus orci, ultricies semper turpis
+        aliquet at. Nulla finibus ligula at orci cursus, ac accumsan nisi lacinia. In eget justo
+        euismod nisl congue posuere</string>
 
 </resources>
