@@ -43,9 +43,9 @@ public class MainActivity extends AppCompatActivity
     MovieAdapter mAdapter;
     // Loading indicator for when the data is loaded
     ProgressBar mProgressBar;
-
+    // textview for when user is offline or when an error occurred
     TextView mNoInternetErrorTv;
-
+    // database used for the favorite movies
     SQLiteDatabase mDatabase;
 
     public static final int DETAIL_MOVIE_REQUEST_CODE = 1;
@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.registerOnSharedPreferenceChangeListener(this);
 
+        // set layout dependent on the orientation of the device
         GridLayoutManager gridLayoutManager = null;
         if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT){
             gridLayoutManager = new GridLayoutManager(this, 2);
@@ -77,25 +78,37 @@ public class MainActivity extends AppCompatActivity
 
         // read the preferred ordering from the preferences
         String preferredOrdering = sp.getString(getString(R.string.pref_order_by_key),
-                getString(R.string.pref_order_by_most_popular_label));
+                getString(R.string.pref_order_by_most_popular_value));
 
         setMainTitle(preferredOrdering);
 
         loadData(preferredOrdering);
     }
 
+    /**
+     * loads the data, either by using a service call or by reading it from the database
+     * @param preferredOrdering ordering mechanism for the movies, either most popular, top rated
+     *                          or favorite. Used to determine whether a service call has to be made
+     *                          or whether the data is read from the database
+     */
     public void loadData(String preferredOrdering){
-        if (NetworkUtils.isOnline(this)){
-            if (!preferredOrdering.equals(getString(R.string.pref_order_by_favorite_value))) {
+        if (preferredOrdering.equals(getString(R.string.pref_order_by_favorite_value))) {
+            // load data from DB for the favorite movies
+            Movie[] favorites = readDataFromDatabase();
+            if (favorites != null){
+                mAdapter.setData(favorites);
+                showResults();
+            } else {
+                showNoFavoritesMessage();
+            }
+
+        } else {
+            if (NetworkUtils.isOnline(this)){
                 URL requestUrl = getPreferredUrl(preferredOrdering);
                 new MovieListAsyncTask(this, new MovieListCompleteListener()).execute(requestUrl);
             } else {
-                // load data from DB for the favorite movies
-                Movie[] favorites = readDataFromDatabase();
-                mAdapter.setData(favorites);
+                showNoInternetMessage();
             }
-        } else {
-            showNoInternetMessage();
         }
     }
 
@@ -122,6 +135,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * read data for the favorite movies from the database
+     * @return array of movies from the database
+     */
     public Movie[] readDataFromDatabase(){
         // query the favorites from the database
         ContentResolver resolver = getContentResolver();
@@ -255,12 +272,19 @@ public class MainActivity extends AppCompatActivity
         mNoInternetErrorTv.setVisibility(View.VISIBLE);
     }
 
+    public void showResults(){
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.GONE);
+        mNoInternetErrorTv.setVisibility(View.GONE);
+        mNoInternetErrorTv.setVisibility(View.GONE);
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_order_by_key))){
             String preferredOrdering = sharedPreferences.getString(
                     getString(R.string.pref_order_by_key),
-                    getString(R.string.pref_order_by_most_popular_label));
+                    getString(R.string.pref_order_by_most_popular_value));
             loadData(preferredOrdering);
             setMainTitle(preferredOrdering);
         }

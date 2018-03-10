@@ -5,11 +5,13 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -51,7 +53,6 @@ public class DetailActivity extends AppCompatActivity
 
     public int movieId;
     public Movie mMovie;
-    public int mDatabaseId;
 
     ProgressBar mProgressBar;
     ScrollView mScrollView;
@@ -71,6 +72,8 @@ public class DetailActivity extends AppCompatActivity
     RecyclerView mRecyclerViewTrailers;
 
     SQLiteDatabase mDatabase;
+
+    Toast mToast;
 
     public static final String YOUTUBE_START_URL = "https://www.youtube.com/watch";
 
@@ -102,14 +105,27 @@ public class DetailActivity extends AppCompatActivity
         Intent intentThatStartedActivity = getIntent();
 
         if(intentThatStartedActivity != null){
-            if (intentThatStartedActivity.hasExtra("id")){
+            // get the preferred ordering method from the SharedPreferences
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
+                    this);
+            String preferredOrder = sharedPreferences.getString(getString(R.string.pref_order_by_key),
+                    null);
+            // get the id of the movie
+            if (intentThatStartedActivity.hasExtra("id")) {
                 movieId = intentThatStartedActivity.getIntExtra("id", -1);
+            }
+
+            if (preferredOrder.equals(getString(R.string.pref_order_by_favorite_value)) &&
+                    !NetworkUtils.isOnline(this) ) {
+                loadDataFromDatabase();
+            } else {
                 URL url = NetworkUtils.buildMovieDetailsUrl(movieId);
                 loadData(url);
             }
         } else {
             finish();
         }
+
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -129,16 +145,22 @@ public class DetailActivity extends AppCompatActivity
         } else {
             mFab.setImageResource(android.R.drawable.star_big_off);
         }
-        mMovie.setIsFavorite(isFavorite);
+        //mMovie.setIsFavorite(isFavorite);
     }
 
     /**
      * changes the FloatingActionButton's colour and icon dependent on whether the user selects it
-     * to be a favorite or not
+     * to be a favorite or not. Also calls the method for saving/deleting the movie in the DB
      * @param setFavorite boolean representing whether the button needs to become favorite or not
      */
     public void setFavoriteButton(boolean setFavorite){
-        Toast mToast = null;
+        // cancel the previous toast message if it exists
+        if (mToast != null){
+            mToast.cancel();
+            mToast = null;
+        }
+        // set the image resource of the favorites button and save the movie to the database
+        // If it was added successful, create a Toast message indicating this
         if(setFavorite){
             mFab.setImageResource(android.R.drawable.star_big_on);
             Uri returnUri = addMovieToFavorites();
@@ -147,6 +169,8 @@ public class DetailActivity extends AppCompatActivity
                         mMovie.getTitle()),
                         Toast.LENGTH_SHORT);
             }
+            // set the image resource of the favorites button and delete the movie from the database
+            // If it was deleted successful, create a Toast message indicating this.
         } else {
             mFab.setImageResource(android.R.drawable.star_big_off);
             int rowsRemoved = removeMovieFromFavorites();
@@ -155,6 +179,7 @@ public class DetailActivity extends AppCompatActivity
                         mMovie.getTitle()), Toast.LENGTH_SHORT);
             }
         }
+        // show the Toast message if it exists
         if (mToast != null) {
             mToast.show();
         }
@@ -167,27 +192,37 @@ public class DetailActivity extends AppCompatActivity
      * @return uri pointing to the inserted row
      */
     public Uri addMovieToFavorites(){
+        // set the boolean attribute of the movie to favorite
         mMovie.setIsFavorite(true);
-
+        // add the movie to the DB using ContentValues and the ContentResolver. For this, we need to
+        // get the movie ID and the movie Poster path
         ContentValues contentValues = new ContentValues();
         contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID, movieId);
         contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_IMAGE_PATH,
                 mMovie.getPosterPath());
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_RATING, mMovie.getVoteAverage());
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_SYNOPSIS, mMovie.getOverview());
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_TITLE, mMovie.getTitle());
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_TAGLINE, mMovie.getTagline());
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_RUNTIME, mMovie.getRuntime());
         ContentResolver resolver = getContentResolver();
         return resolver.insert(MoviesContract.FavoriteMoviesEntry.CONTENT_URI, contentValues);
-
     }
 
     /**
      * Removes the current movie from the favorites database, holding the users favorite movies
      * This function also updates the corresponding boolean flag of the Movie object, i.e. sets the
      * mIsFavorite flag to false
-     * @return long corresponding to the number of entries removed from the database
+     * @return int corresponding to the number of entries removed from the database
      */
     public int removeMovieFromFavorites(){
+        // set the boolean attribute of the movie to favorite
         mMovie.setIsFavorite(false);
+        // delete the movie from the DB using the ContentResolver. For this, we need to
+        // get the movie ID, append it the URI path of the table and pass it to the resolver.
         ContentResolver resolver = getContentResolver();
-        Uri uri = ContentUris.withAppendedId(MoviesContract.FavoriteMoviesEntry.CONTENT_URI,movieId);
+        Uri uri = ContentUris.withAppendedId(MoviesContract.FavoriteMoviesEntry.CONTENT_URI, movieId);
         return resolver.delete(uri, null, null );
     }
 
@@ -195,13 +230,36 @@ public class DetailActivity extends AppCompatActivity
      * starts the AsyncTask to fetch data for a certain movie
      * First checks whether an internet connection is available
      * If not, the AsyncTask is not started and an error message is shown
-     * @param url : url to be called
      */
     public void loadData(URL url){
         if (NetworkUtils.isOnline(this)){
             (new MovieDetailsAsyncTask(this, new MovieDetailCompleteListener())).execute(url);
         } else {
             showNoInternetMessage();
+        }
+    }
+
+    public void loadDataFromDatabase(){
+        mProgressBar.setVisibility(View.VISIBLE);
+        Uri queryUri = ContentUris.withAppendedId(MoviesContract.FavoriteMoviesEntry.CONTENT_URI,
+                movieId);
+        ContentResolver resolver = getContentResolver();
+        Cursor result = resolver.query(queryUri, null, null, null,
+                null);
+        if (result.getCount() != 0){
+            result.moveToNext();
+            double vote = result.getDouble(result.getColumnIndex(MoviesContract.FavoriteMoviesEntry.COLUMN_RATING));
+            String title = result.getString(result.getColumnIndex(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_TITLE));
+            String posterPath = result.getString(result.getColumnIndex(MoviesContract.FavoriteMoviesEntry.COLUMN_IMAGE_PATH));
+            String synopsis = result.getString(result.getColumnIndex(MoviesContract.FavoriteMoviesEntry.COLUMN_SYNOPSIS));
+            String tagline = result.getString(result.getColumnIndex(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_TAGLINE));
+            String releaseDate = result.getString(result.getColumnIndex(MoviesContract.FavoriteMoviesEntry.COLUMN_RELEASE_DATE));
+            int runtime = result.getInt(result.getColumnIndex(MoviesContract.FavoriteMoviesEntry.COLUMN_RUNTIME));
+
+            mMovie = new Movie(movieId, vote, title, posterPath, null, synopsis, tagline,
+                    releaseDate, runtime, null, null, true);
+            bindDataToUI(mMovie);
+            mProgressBar.setVisibility(View.GONE);
         }
     }
 
@@ -336,23 +394,31 @@ public class DetailActivity extends AppCompatActivity
         }
 
         ArrayList<String> trailers = movie.getTrailerIds();
-        if (trailers.size() != 0){
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
-                    LinearLayoutManager.HORIZONTAL, false);
-            mRecyclerViewTrailers.setLayoutManager(linearLayoutManager);
-            MovieTrailerAdapter adapter = new MovieTrailerAdapter(this, trailers.size(), this);
-            mRecyclerViewTrailers.setAdapter(adapter);
+        if (trailers != null) {
+            if (trailers.size() != 0) {
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
+                        LinearLayoutManager.HORIZONTAL, false);
+                mRecyclerViewTrailers.setLayoutManager(linearLayoutManager);
+                MovieTrailerAdapter adapter = new MovieTrailerAdapter(this, trailers.size(), this);
+                mRecyclerViewTrailers.setAdapter(adapter);
+            } else {
+                mTrailersSection.setVisibility(View.GONE);
+            }
         } else {
             mTrailersSection.setVisibility(View.GONE);
         }
 
         ArrayList<MovieReview> reviews = movie.getReviews();
-        if (reviews.size() != 0){
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
-                    LinearLayoutManager.HORIZONTAL, false);
-            mRecyclerViewReviews.setLayoutManager(linearLayoutManager);
-            MovieReviewAdapter adapter = new MovieReviewAdapter(reviews,this );
-            mRecyclerViewReviews.setAdapter(adapter);
+        if (reviews != null) {
+            if (reviews.size() != 0) {
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
+                        LinearLayoutManager.HORIZONTAL, false);
+                mRecyclerViewReviews.setLayoutManager(linearLayoutManager);
+                MovieReviewAdapter adapter = new MovieReviewAdapter(reviews, this);
+                mRecyclerViewReviews.setAdapter(adapter);
+            } else {
+                mReviewsSection.setVisibility(View.GONE);
+            }
         } else {
             mReviewsSection.setVisibility(View.GONE);
         }
