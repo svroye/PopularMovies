@@ -109,7 +109,7 @@ public class DetailActivity extends AppCompatActivity
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
                     this);
             String preferredOrder = sharedPreferences.getString(getString(R.string.pref_order_by_key),
-                    null);
+                    getString(R.string.pref_order_by_most_popular_value));
             // get the id of the movie
             if (intentThatStartedActivity.hasExtra("id")) {
                 movieId = intentThatStartedActivity.getIntExtra("id", -1);
