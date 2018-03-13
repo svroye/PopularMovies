@@ -22,4 +22,6 @@ Important things I learned doing this project include:
 - Checking for internet connection before starting the API call
 - Settings fragment with SharedPreferences
 - Use of ConstraintLayout for UI
+- Different layouts for portrait and landscape orientation
+- Use of OkHttp library
 - ...
