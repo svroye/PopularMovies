@@ -40,7 +40,7 @@ public class MovieDetailsAsyncTask extends AsyncTask<URL, Void, Movie> {
 
         try {
             // get the response from the request
-            String response = NetworkUtils.fetchHttpResponse(queryUrl);
+            String response = NetworkUtils.performHttpRequest(queryUrl);
             // parse the response and assign the result to the Movie array
             movie = NetworkUtils.parseJsonResultMovieDetails(response);
         } catch (IOException e) {

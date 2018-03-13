@@ -2,6 +2,7 @@ package com.example.steven.popularmovies.Data;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.steven.popularmovies.Objects.Movie;
 import com.example.steven.popularmovies.Utils.NetworkUtils;
@@ -38,7 +39,7 @@ public class MovieListAsyncTask extends AsyncTask<URL, Void, Movie[]> {
 
         try {
             // get the response from the request
-            String response = NetworkUtils.fetchHttpResponse(queryUrl);
+            String response = NetworkUtils.performHttpRequest(queryUrl);
             // parse the response and assign the result to the Movie array
             movies = NetworkUtils.parseJsonResultMovieList(response);
         } catch (IOException e) {

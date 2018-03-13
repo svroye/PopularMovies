@@ -22,6 +22,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 /**
  * Created by Steven on 20/02/2018.
  */
@@ -88,7 +92,6 @@ public class NetworkUtils {
 
         return url;
     }
-
 
     public static URL buildMovieDetailsUrl(int id) {
         // get the start URL
@@ -291,4 +294,12 @@ public class NetworkUtils {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    public static String performHttpRequest(URL url) throws IOException{
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = client.newCall(request).execute();
+        return response.body().string();
+    }
 }
